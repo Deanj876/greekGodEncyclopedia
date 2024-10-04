@@ -1,0 +1,119 @@
+{
+    "Aphrodite": {
+        "title": "\"Lady of Cythera\", \"Lady of Cypris|Cyprus\", \"Lady of Paphos\", \"Lady of Eryx\"",
+        "god of": "Love, Beauty, Procreation",
+        "symbol": "Dolphin, Rose, Scallop Shell, Myrtle, Dove, Sparrow, Girdle, Mirror, and Swan",
+        "greek_name": "",
+        "roman_name": "Venus",
+        "description": "Aphrodite is the Greek Goddess of Love, Beauty, and Procreation. She is also known for her many children and lovers, such as Eros and Adonis. She is also known for her many siblings, such as Ares, Hermes, and Apollo. She is also known for her many consorts, such as Hephaestus (Husband) and Ares (Love Affair). She is also known for her many symbols, such as the dolphin, rose, and scallop shell. She is also known for her beauty and her ability to make people fall in love with her.",
+        "child of": "Zeus (Father) and Dione (Mother)"
+    },
+    "Apollo": {
+        "title": "\"Leader of the Muses\", \"The One Who Speaks Crookedly\", \"The One Who Shoots from Afar\"",
+        "god of": "Music, Prophecy, Healing, Archery, Poetry, Sun and Light (Recent)",
+        "symbol": "Lyre, Bow and Arrows, Laurel wreath, Python, Raven, Sun (Recent) and Light (Recent)",
+        "greek_name": "Apollo",
+        "roman_name": "Phoebus",
+        "description": "Apollo is the Greek God of many things, such as music, prophecy, healing, archery, poetry, and the sun and light. He is also known for his many children and lovers, such as Daphne and Cassandra. He is also known for his many siblings, such as Artemis, Hermes, and Dionysus.He is also known for even taking the spot of other Gods and Titans Like Hyperion and Helios (Titan and God of the Sun). He also has been seen and depicted as a attractive and beloved god by the mortals, having lovers and consorts of both genders and realms.",
+        "child of": "Zeus (Father) and Leto (Mother)"
+    },
+    "Ares": {
+        "title": "\"The Bane of Mortals\", \"The Slayer of Men\", \"The City Stormer\", \"The Armor-Clattering\"",
+        "god of": "War, Courage and Civil Order",
+        "symbol": "Sword, Spear, Shield, Helmet, Chariot, Dog, Vulture, Venomous Snake, and Boar",
+        "greek_name": "Ares",
+        "roman_name": "Mars",
+        "description": "Ares is the Greek God of War and Courage. He is also known for his many children and lovers, such as Eros and Harmonia. He is also known for his many siblings, such as Athena, Hermes, and Apollo. He is also known for his many consorts, such as Aphrodite (Love Affair) and Enyo. He is also known for his many symbols, such as the sword, spear, and shield. He is also known for his courage and his ability to fight in battle.",
+        "child of": "Zeus (Father), Hera (Mother)"
+    },
+    "Artemis": {
+        "title": "\"The Maiden Huntress\", \"The Lady of the Wild Things\", \"The Lady of the Beasts\", \"The Lady of the Lake\"",
+        "god of": "Hunting, Wilderness, Wild Animals, Childbirth, and Virginity",
+        "symbol": "Bow and Arrows, Hunting Dogs, Stag, Moon, and Cypresses",
+        "greek_name": "Artemis",
+        "roman_name": "Diana",
+        "description": "Artemis is the Greek Goddess of Hunting, Wilderness, Wild Animals, Childbirth, and Virginity. She is also known for her many siblings, such as Apollo, Hermes, and Ares. She is also known for her many symbols, such as the bow and arrows, hunting dogs, and stag. She is also known for her hunting skills and her ability to protect the wilderness.",
+        "child of": "Zeus (Father), Leto (Mother)"
+    },
+    "Athena": {
+        "title": "\"Lady of Athens\", \"The Maiden Goddess\", \"The Virgin Goddess\", \"The Goddess of Wisdom\"",
+        "god of": "Wisdom, Warfare, Strategy, Handicrafts and Reason",
+        "symbol": "Owl, Olive Tree, Snake, Aegis, Armor, Helmet, Spear, Gorgoneion, and Shield",
+        "greek_name": "Athena",
+        "roman_name": "Minerva",
+        "description": "Athena is the Greek Goddess of Wisdom, Warfare, Strategy, Handicrafts, and Reason. She is also known for her many siblings, such as Ares, Hermes, and Apollo (Twin). She is also known for her many symbols, such as the owl, olive tree, and snake. She is also known for her wisdom and her ability to make wise decisions.",
+        "child of": "Zeus (Father),(In some dipictions) Metis (Mother, Nymph)"
+    },
+    "Hades": {
+        "title": "\"The Other Zeus\", \"The Infernal Zeus\", \"The Grisly God\", \"The Host of Many\", and others",
+        "god of": "Death / God of the Dead, Underworld, Wealth, Darkness",
+        "symbol": "Cerberus, Keys, Cornucopia, Sceptre, Cypress",
+        "greek_name": "Hades",
+        "roman_name": "Pluto (Dis Pater, Orcus)",
+        "description": "Hades is the Greek God of Death, the Underworld, Wealth, and Darkness. He is also known for his many siblings, such as Zeus, Poseidon, and Hera. He is also known for his many consorts, such as Persephone (Wife) and Leuce (Love Affair). He is also known for his many symbols, such as Cerberus, keys, and cornucopia. He is also known for his wealth and his ability to control the dead.",
+        "child of": "Cronus (Father, Titan), Rhea (Mother, Titan / God)"
+    },
+    "Hephaestus": {
+        "title": "\"The Lame One\", \"The Halting\", \"Shrewd\", \"Divine Engineer\", \"The Lame-Strider\", \"Master of The Great-Forge\"",
+        "god of": "Fire, Blacksmithing, Metalworking, Masonary, Forges, Sculpture, Volcanoes",
+        "symbol": "Hammer, Anvil, Tongs",
+        "greek_name": "Hephaestus",
+        "roman_name": "Vulcan ",
+        "description": "Hephaestus is the Greek God of Fire, Blacksmithing, Metalworking, Masonary, Forges, Sculpture, and Volcanoes. He is also known for his many children and lovers, such as Thalia and Aglaea. He is also known for his many siblings, such as Ares, Hermes, and Apollo. He is also known for his many consorts, such as Aphrodite (Wife) and Aglaea (Love Affair). He is also known for his many symbols, such as the hammer, anvil, and tongs. He is also known for his ability to create beautiful and powerful weapons. BUt unlike the other gods he was born / created by malformed, and was thrown out of Olympus by her.",
+        "child of": "Zeus (Father), Hera (Mother)"
+    },
+    "Hera": {
+        "title": "\"Cow-eyed\", \"White-Armed\", \"Queen of the God\"",
+        "god of": "Marrige, Woman, Birth",
+        "symbol": "Pomegranate, Peacock, Cow, Diadem, Lotus Staff, and Crown",
+        "greek_name": "Hera",
+        "roman_name": "Juno",
+        "description": "Hera is the Greek Goddess of Marriage and Birth. She is also known for her many children, such as Ares and Hephaestus. She is also known for her many siblings, such as Zeus, Poseidon, and Hades. She is also known for her many husband, such as Zeus (Husband) . She is also known for her many symbols, such as the pomegranate, peacock, and cow. She is also known for her beauty and her ability. And despite being the goddess of marrige and family, she is known for her jealousy and vengeful nature. (Partly due to Zeus's infidelity)",
+        "child of": "Cronus (Father, Titan), Rhea (Mother, Titan / God)"
+    },
+    "Hermes": {
+        "title": "\"The Conductor\", \"The Leader of Souls\", \"Patron of Travelers and Thieves\", \"Sheperd of Man\", \"Trickster\", and \"Argus-Slayer\"",
+        "god of": "Herds, Trade, Thievery, Roads, Souls of the Dead, Messengers, Oratory, Interpretation, Persuasion, Speech, AthleticsSou",
+        "symbol": "Talaria (winged sandals), Petasos (winged helmet), Caduceus (a short staff entwined by two snakes), satchel, lyre",
+        "greek_name": "Hermes",
+        "roman_name": "Mercury",
+        "description": "Hermes is the Greek God of Herds, Trade, Thievery, Roads, Souls of the Dead, Messengers, Oratory, Interpretation, Persuasion, Speech, and Athletics. He is also known for his many children and lovers, such as Pan and Aphrodite. He is also known for his many siblings, such as Ares, Apollo, and Artemis. He is also known for his many consorts, such as Aphrodite (Love Affair) and Peitho. He is also known for his many symbols, such as the talaria, petasos, and caduceus. He is also known for his ability to travel between the mortal and divine worlds. Also being sighted in many storys and Myths like \"The Iliad\", |The Odyssey\", and \"The Tale of Orpheus and Eurydice\".",
+        "child of": "Zeus (Father), Maia (Pleidas, Nymph)"
+    },
+    "Hestia": {
+        "title": "\"The Beloved\", \"The Eternal\", \"She of Public Hearth\"",
+        "god of": "Hearth, Home, Family, and the State",
+        "symbol": "Fire, Hearth, Kettle, and Donkey",
+        "greek_name": "Hestia",
+        "roman_name": "Vesta",
+        "description": "Hestia is the Greek Goddess of Hearth, Home, Family, and the State. She is also known for her many siblings, such as Zeus, Poseidon, and Hades. She is also known for her many symbols, such as the fire, hearth, and kettle. She is also known for her ability to protect the home and family.",
+        "child of": "Cronos (Father, Titan), Rhea (Mother, Titan / God)"
+    },
+    "Poesidon": {
+        "title": "\"Savior of Sailors\", \"Averter of Earthquakes\", \"The Creator and Tamer of Horses\", \"Leader of the Nymphs\"",
+        "god of": "Sea, Earthquakes, Floods, Storms, Horses",
+        "symbol": "Trident, Fish, Dolphin, Horse, Bull",
+        "greek_name": "Poseidon",
+        "roman_name": "Neptune",
+        "description": "Poseidon is the Greek God of the Sea, Earthquakes, Floods, Storms, and Horses. He is also known for his many children and lovers, such as Theseus and Amphitrite. He is also known for his many siblings, such as Zeus, Hades, and Hera. He is also known for his many consorts, such as Amphitrite (Wife) and Demeter (Love Affair). He is also known for his many symbols, such as the trident, fish, and dolphin. He is also known for his ability to control the sea and create earthquakes.",
+        "child of": "Cronus (Father, Titan), Rhea (Mother, Titan / God)"
+    },
+    "Zeus": {
+        "title": "\"Warlike\", \"Oath-Keeper\", \"The Thunderer\", \"The Cloud-Gatherer\", \"The King of the Gods\", and many others",
+        "god of": "Sky, Thunder, Lightning, Weather, Air, Justice, Kings, Fate, People",
+        "symbol": "Thunderbolt, Eagle, Bull, Oak Tree, Aegis",
+        "greek_name": "Zeus",
+        "roman_name": "Jupiter / Jove (Dependent on Translation)",
+        "description": "Zeus is the Greek God of the Sky, Thunder, Lightning, Weather, Air, Justice, Kings, Fate, and People. He is also known for his many children and lovers, such as Athena and Hera. He is also known for his many siblings, such as Poseidon, Hades, and Hera. He is also known for his many consorts, such as Hera (Wife) and Leto (Love Affair, one of many). He is also known for his many symbols, such as the thunderbolt, eagle, and bull. He is also known for his ability to control the weather and create lightning.",
+        "child of": "Cronus (Father, Titan), Rhea (Mother, Titan / God)"
+    },
+    "Aeolus": {
+        "title": "\"Keeper of the 4 Winds\", \"The Wind Keeper\"",
+        "god of": "Wind",
+        "symbol": "\"Wind Bag\", Harp, and Anemoi",
+        "greek_name": "Aeolus",
+        "roman_name": "Aiolos",
+        "description": "Aeolus is the Greek God of Wind. He is also known for his many children and lovers, such as Alcyone and Cretheus. He is also known for his many siblings, such as Poseidon, Hades, and Hera. He is also known for his many consorts, such as Enarete (Wife) and Perimede. He is also known for his many symbols, such as the wind bag, harp, and anemoi. He is also known for his ability to control the wind and create storms. Despite there being a god for each of the 4 cardinal directions of the winds, Aeolus seems to be the most well known and respected and is often seen as the god of all winds.",
+        "child of": "N/A (Father), Hellen (Mother)"
+    }
+}
