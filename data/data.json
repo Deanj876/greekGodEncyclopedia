@@ -115,5 +115,14 @@
         "roman_name": "Aiolos",
         "description": "Aeolus is the Greek God of Wind. He is also known for his many children and lovers, such as Alcyone and Cretheus. He is also known for his many siblings, such as Poseidon, Hades, and Hera. He is also known for his many consorts, such as Enarete (Wife) and Perimede. He is also known for his many symbols, such as the wind bag, harp, and anemoi. He is also known for his ability to control the wind and create storms. Despite there being a god for each of the 4 cardinal directions of the winds, Aeolus seems to be the most well known and respected and is often seen as the god of all winds.",
         "child of": "N/A (Father), Hellen (Mother)"
+    },
+    "Tester": {
+        "title": "Test",
+        "god of": "Test",
+        "symbol": "Test",
+        "greek_name": "Test",
+        "roman_name": "Test",
+        "description": "Test",
+        "child of": "Test"
     }
 }
