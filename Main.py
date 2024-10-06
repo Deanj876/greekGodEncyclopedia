@@ -31,8 +31,39 @@ def create_connection():
             level_of_god TEXT
         )
     ''')
+    create_log_table(cursor)
+    create_triggers(cursor)
     conn.commit()
     return conn, cursor
+
+# Function to create the log table
+def create_log_table(cursor):
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS god_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT,
+            god_name TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+# Function to create triggers
+def create_triggers(cursor):
+    cursor.execute('''
+        CREATE TRIGGER IF NOT EXISTS after_god_insert
+        AFTER INSERT ON gods
+        BEGIN
+            INSERT INTO god_logs (action, god_name) VALUES ('INSERT', NEW.name);
+        END;
+    ''')
+
+    cursor.execute('''
+        CREATE TRIGGER IF NOT EXISTS after_god_delete
+        AFTER DELETE ON gods
+        BEGIN
+            INSERT INTO god_logs (action, god_name) VALUES ('DELETE', OLD.name);
+        END;
+    ''')
 
 # Function to add a new god to the database
 def add_god(cursor, conn):
@@ -140,6 +171,7 @@ def search_god_by_letter(cursor):
     
     input("Press enter to continue...")
     clear_screen()
+
 # Function to delete a god from the database
 def delete_god(cursor, conn):
     clear_screen()
