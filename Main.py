@@ -1,4 +1,5 @@
 import sqlite3
+import textwrap
 import os
 
 # Function to greet a user
@@ -25,7 +26,9 @@ def create_connection():
             greek_name TEXT,
             roman_name TEXT,
             description TEXT,
-            child_of TEXT
+            father TEXT,
+            mother TEXT,
+            level_of_god TEXT
         )
     ''')
     conn.commit()
@@ -41,12 +44,14 @@ def add_god(cursor, conn):
     greek_name = input("Enter the Greek name of the god: ")
     roman_name = input("Enter the Roman name of the god: ")
     description = input("Enter the description of the god: ")
-    child_of = input("Enter the god's parent: ")
+    father = input("Enter the god's father: ")
+    mother = input("Enter the god's mother: ")
+    level_of_god = input("Enter the level of the god (e.g., Major God / Olympian): ")
     
     cursor.execute('''
-        INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, child_of)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, title, god_of, symbol, greek_name, roman_name, description, child_of))
+        INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father, mother, level_of_god)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (name, title, god_of, symbol, greek_name, roman_name, description, father, mother, level_of_god))
     conn.commit()
     print("God added successfully!")
     input("Press enter to continue...")
@@ -56,30 +61,31 @@ def add_god(cursor, conn):
 def search_god(cursor):
     clear_screen()
     name = input("Enter the name of the god: ")
+    name = textwrap.fill(name, width=70)  # Adjust width as needed
     cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
     god = cursor.fetchone()
     if god:
-        clear_screen()
-        print("#--------------------------------#")
-        print(f"Title: {god[1]}")
-        print(f"God of: {god[2]}")
-        print(f"Symbol: {god[3]}")
-        print(f"Greek Name: {god[4]}")
-        print(f"Roman Name: {god[5]}")
-        print(f"Description: {god[6]}")
-        print(f"Child of: {god[7]}")
-        print("#--------------------------------#")
-        input("Press enter to continue...")
-        clear_screen()
+        print(f"\033[1mName:\033[0m {god[0]}")
+        print(f"\033[1mTitle:\033[0m {god[1]}")
+        print(f"\033[1mGod of:\033[0m {god[2]}")
+        print(f"\033[1mSymbol:\033[0m {god[3]}")
+        print(f"\033[1mGreek Name:\033[0m {god[4]}")
+        print(f"\033[1mRoman Name:\033[0m {god[5]}")
+        print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
+        print(f"\033[1mFather:\033[0m {god[7]}")
+        print(f"\033[1mMother:\033[0m {god[8]}")
+        print(f"\033[1mLevel of God:\033[0m {god[9]}")
     else:
-        print("God not found!")
+        print("God not found.")
+    input("Press enter to continue...")
+    clear_screen()
 
 # Function to search for a god in the database by letter or word
 def search_god_by_letter(cursor):
     clear_screen()
     letter = input("Enter the letter or word to search for: ")
     found = False
-    if letter.lower() == "olympians":
+    if letter.lower() == "olympians" or letter.lower() == "major gods" or letter.lower() == "olympian":
         print("#--------------------------------#")
         print("Zeus")
         print("Hera")
@@ -154,7 +160,9 @@ def edit_god(cursor, conn):
         print("4. Greek Name")
         print("5. Roman Name")
         print("6. Description")
-        print("7. Child of")
+        print("7. Father")
+        print("8. Mother")
+        print("9. Level of God")
         choice = input("Enter your choice: ")
         if choice == "1":
             new_value = input("Enter the new title: ")
@@ -175,8 +183,14 @@ def edit_god(cursor, conn):
             new_value = input("Enter the new description: ")
             cursor.execute('UPDATE gods SET description = ? WHERE name = ?', (new_value, name))
         elif choice == "7":
-            new_value = input("Enter the new child of: ")
-            cursor.execute('UPDATE gods SET child_of = ? WHERE name = ?', (new_value, name))
+            new_value = input("Enter the new father: ")
+            cursor.execute('UPDATE gods SET father = ? WHERE name = ?', (new_value, name))
+        elif choice == "8":
+            new_value = input("Enter the new mother: ")
+            cursor.execute('UPDATE gods SET mother = ? WHERE name = ?', (new_value, name))
+        elif choice == "9":
+            new_value = input("Enter the new level of god: ")
+            cursor.execute('UPDATE gods SET level_of_god = ? WHERE name = ?', (new_value, name))
         conn.commit()
         print("God information updated successfully!")
     else:
