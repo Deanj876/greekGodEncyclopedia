@@ -84,38 +84,62 @@ def search_god(cursor):
 def search_god_by_letter(cursor):
     clear_screen()
     letter = input("Enter the letter or word to search for: ")
-    found = False
-    if letter.lower() == "olympians" or letter.lower() == "major gods" or letter.lower() == "olympian":
-        print("#--------------------------------#")
-        print("Zeus")
-        print("Hera")
-        print("Poseidon")
-        print("Hades")
-        print("Athena")
-        print("Apollo")
-        print("Artemis")
-        print("Ares")
-        print("Aphrodite")
-        print("Hephaestus")
-        print("Hermes")
-        print("Hestia")
-        print("#--------------------------------#")
+    print("Search by:")
+    print("1. Name")
+    print("2. Father")
+    print("3. Mother")
+    print("4. Level of God")
+    choice = input("Enter your choice: ")
+    print("#--------------------------------#")
+    
+    if choice == "1":
+        cursor.execute('SELECT name FROM gods WHERE name LIKE ?', ('%' + letter + '%',))
+        field = "Name"
+    elif choice == "2":
+        cursor.execute('SELECT name FROM gods WHERE father LIKE ?', ('%' + letter + '%',))
+        field = "Father"
+    elif choice == "3":
+        cursor.execute('SELECT name FROM gods WHERE mother LIKE ?', ('%' + letter + '%',))
+        field = "Mother"
+    elif choice == "4":
+        cursor.execute('SELECT name FROM gods WHERE level_of_god LIKE ?', ('%' + letter + '%',))
+        field = "Level of God"
+    else:
+        print("Invalid choice!")
         input("Press enter to continue...")
         clear_screen()
         return
-    else: 
+
+    gods = cursor.fetchall()
+    if gods:
+        print(f"Gods found by {field}:")
         print("#--------------------------------#")
-        cursor.execute('SELECT name FROM gods WHERE name LIKE ?', ('%' + letter + '%',))
-        gods = cursor.fetchall()
         for god in gods:
             print(god[0])
-            found = True
         print("#--------------------------------#")
-        input("Press enter to continue...")
-        clear_screen()
-        if not found:
-            print("No gods found!")
-
+        
+        selected_god = input("Enter the name of the god you want to display: ")
+        cursor.execute('SELECT * FROM gods WHERE name = ?', (selected_god,))
+        god = cursor.fetchone()
+        if god:
+            clear_screen()
+            print(f"\033[1mName:\033[0m {god[0]}")
+            print(f"\033[1mTitle:\033[0m {god[1]}")
+            print(f"\033[1mGod of:\033[0m {god[2]}")
+            print(f"\033[1mSymbol:\033[0m {god[3]}")
+            print(f"\033[1mGreek Name:\033[0m {god[4]}")
+            print(f"\033[1mRoman Name:\033[0m {god[5]}")
+            print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
+            print(f"\033[1mFather:\033[0m {god[7]}")
+            print(f"\033[1mMother:\033[0m {god[8]}")
+            print(f"\033[1mLevel of God:\033[0m {god[9]}")
+        else:
+            print("God not found!")
+    else:
+        print("No gods found!")
+    
+    input("Press enter to continue...")
+    clear_screen()
 # Function to delete a god from the database
 def delete_god(cursor, conn):
     clear_screen()
