@@ -65,33 +65,33 @@ def create_triggers(cursor):
         END;
     ''')
 
-# Function to add a new god to the database
+# Function to add a new God / Deity / Titan to the database
 def add_god(cursor, conn):
     clear_screen()
-    name = input("Enter the name of the god: ")
-    god_of = input("Enter the god of what: ")
-    title = input("Enter the title of the god: ")
-    symbol = input("Enter the symbol of the god: ")
-    greek_name = input("Enter the Greek name of the god: ")
-    roman_name = input("Enter the Roman name of the god: ")
-    description = input("Enter the description of the god: ")
-    father = input("Enter the god's father: ")
-    mother = input("Enter the god's mother: ")
-    level_of_god = input("Enter the level of the god (e.g., Major God / Olympian): ")
+    name = input("Enter the name of the God / Deity / Titan: ")
+    god_of = input("Enter the God / Deity / Titan of what: ")
+    title = input("Enter the title of the God / Deity / Titan: ")
+    symbol = input("Enter the symbol of the God / Deity / Titan: ")
+    greek_name = input("Enter the Greek name of the God / Deity / Titan: ")
+    roman_name = input("Enter the Roman name of the God / Deity / Titan: ")
+    description = input("Enter the description of the God / Deity / Titan: ")
+    father = input("Enter the God / Deity / Titan's father: ")
+    mother = input("Enter the God / Deity / Titan's mother: ")
+    level_of_god = input("Enter the level of the God / Deity / Titan (e.g., Major God / Olympian): ")
     
     cursor.execute('''
         INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father, mother, level_of_god)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (name, title, god_of, symbol, greek_name, roman_name, description, father, mother, level_of_god))
     conn.commit()
-    print("God added successfully!")
+    print("God / Deity / Titan added successfully!")
     input("Press enter to continue...")
     clear_screen()
 
-# Function to search for a god in the database
+# Function to search for a God / Deity / Titan in the database
 def search_god(cursor):
     clear_screen()
-    name = input("Enter the name of the god: ")
+    name = input("Enter the name of the God / Deity / Titan: ")
     name = textwrap.fill(name, width=70)  # Adjust width as needed
     cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
     god = cursor.fetchone()
@@ -107,11 +107,11 @@ def search_god(cursor):
         print(f"\033[1mMother:\033[0m {god[8]}")
         print(f"\033[1mLevel of God:\033[0m {god[9]}")
     else:
-        print("God not found.")
+        print("God / Deity / Titan not found.")
     input("Press enter to continue...")
     clear_screen()
 
-# Function to search for a god in the database by letter or word
+# Function to search for a God / Deity / Titan in the database by letter or word
 def search_god_by_letter(cursor):
     clear_screen()
     letter = input("Enter the letter or word to search for: ")
@@ -143,13 +143,13 @@ def search_god_by_letter(cursor):
 
     gods = cursor.fetchall()
     if gods:
-        print(f"Gods found by {field}:")
+        print(f"Gods / Deities / Titans found by {field}:")
         print("#--------------------------------#")
         for god in gods:
             print(god[0])
         print("#--------------------------------#")
         
-        selected_god = input("Enter the name of the god you want to display: ")
+        selected_god = input("Enter the name of the God / Deity / Titan you want to display: ")
         cursor.execute('SELECT * FROM gods WHERE name = ?', (selected_god,))
         god = cursor.fetchone()
         if god:
@@ -165,27 +165,27 @@ def search_god_by_letter(cursor):
             print(f"\033[1mMother:\033[0m {god[8]}")
             print(f"\033[1mLevel of God:\033[0m {god[9]}")
         else:
-            print("God not found!")
+            print("God / Deity / Titan not found!")
     else:
-        print("No gods found!")
+        print("No Gods / Deities / Titans found!")
     
     input("Press enter to continue...")
     clear_screen()
 
-# Function to delete a god from the database
+# Function to delete a God / Deity / Titan from the database
 def delete_god(cursor, conn):
     clear_screen()
-    name = input("Enter the name of the god: ")
+    name = input("Enter the name of the God / Deity / Titan: ")
     cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
     conn.commit()
     if cursor.rowcount > 0:
-        print("God deleted successfully!")
+        print("God / Deity / Titan deleted successfully!")
     else:
-        print("God not found!")
+        print("God / Deity / Titan not found!")
     input("Press enter to continue...")
     clear_screen()
 
-# Function to display all the gods in the database
+# Function to display all the Gods / Deities / Titans in the database
 def display_gods(cursor):
     clear_screen()
     cursor.execute('SELECT name FROM gods ORDER BY name')
@@ -195,17 +195,17 @@ def display_gods(cursor):
         for god in gods:
             print(god[0])
         print("#--------------------------------#")
-        print("\nTotal gods:", len(gods))
+        print("\nTotal Gods / Deities / Titans:", len(gods))
         print("#--------------------------------#")
         input("Press enter to continue...")
         clear_screen()
     else:
-        print("No gods found!")
+        print("No Gods / Deities / Titans found!")
 
-# Function to edit the information of a god in the database
+# Function to edit the information of a God / Deity / Titan in the database
 def edit_god(cursor, conn):
     clear_screen()
-    name = input("Enter the name of the god: ")
+    name = input("Enter the name of the God / Deity / Titan: ")
     cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
     god = cursor.fetchone()
     if god:
@@ -224,7 +224,7 @@ def edit_god(cursor, conn):
             new_value = input("Enter the new title: ")
             cursor.execute('UPDATE gods SET title = ? WHERE name = ?', (new_value, name))
         elif choice == "2":
-            new_value = input("Enter the new god of: ")
+            new_value = input("Enter the new God / Deity / Titan of: ")
             cursor.execute('UPDATE gods SET god_of = ? WHERE name = ?', (new_value, name))
         elif choice == "3":
             new_value = input("Enter the new symbol: ")
@@ -245,23 +245,23 @@ def edit_god(cursor, conn):
             new_value = input("Enter the new mother: ")
             cursor.execute('UPDATE gods SET mother = ? WHERE name = ?', (new_value, name))
         elif choice == "9":
-            new_value = input("Enter the new level of god: ")
+            new_value = input("Enter the new level of God / Deity / Titan: ")
             cursor.execute('UPDATE gods SET level_of_god = ? WHERE name = ?', (new_value, name))
         conn.commit()
-        print("God information updated successfully!")
+        print("God / Deity / Titan information updated successfully!")
     else:
-        print("God not found!")
+        print("God / Deity / Titan not found!")
     input("Press enter to continue...")
     clear_screen()
 
 # Function to display the menu
 def menu():
-    print("1. Add a god")
-    print("2. Search for a god's information")
-    print("3. Search for a god by letter or key word")
-    print("4. Delete a god")
-    print("5. Display all gods")
-    print("6. Edit a god")
+    print("1. Add a God / Deity / Titan")
+    print("2. Search for a God / Deity / Titan's information")
+    print("3. Search for a God / Deity / Titan by letter or key word")
+    print("4. Delete a God / Deity / Titan")
+    print("5. Display all Gods / Deities / Titans")
+    print("6. Edit a God / Deity / Titan")
     print("7. Exit")
     choice = input("Enter your choice: ")
     return choice
