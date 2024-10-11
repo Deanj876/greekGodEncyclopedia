@@ -91,9 +91,9 @@ def add_god(cursor, conn):
 # Function to search for a God / Deity / Titan in the database
 def search_god(cursor):
     clear_screen()
-    name = input("Enter the name of the God / Deity / Titan: ")
+    name = input("Enter the name of the God / Deity / Titan: ").strip()
     name = textwrap.fill(name, width=70)  # Adjust width as needed
-    cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
+    cursor.execute('SELECT * FROM gods WHERE TRIM(name) = ?', (name,))
     god = cursor.fetchone()
     if god:
         print(f"\033[1mName:\033[0m {god[0]}")
@@ -114,26 +114,26 @@ def search_god(cursor):
 # Function to search for a God / Deity / Titan in the database by letter or word
 def search_god_by_letter(cursor):
     clear_screen()
-    letter = input("Enter the letter or word to search for: ")
+    letter = input("Enter the letter or word to search for: ").strip()
     print("Search by:")
     print("1. Name")
     print("2. Father")
     print("3. Mother")
     print("4. Level of God")
-    choice = input("Enter your choice: ")
+    choice = input("Enter your choice: ").strip()
     print("#--------------------------------#")
     
     if choice == "1":
-        cursor.execute('SELECT name FROM gods WHERE name LIKE ?', ('%' + letter + '%',))
+        cursor.execute('SELECT name FROM gods WHERE TRIM(name) LIKE ?', ('%' + letter + '%',))
         field = "Name"
     elif choice == "2":
-        cursor.execute('SELECT name FROM gods WHERE father LIKE ?', ('%' + letter + '%',))
+        cursor.execute('SELECT name FROM gods WHERE TRIM(father) LIKE ?', ('%' + letter + '%',))
         field = "Father"
     elif choice == "3":
-        cursor.execute('SELECT name FROM gods WHERE mother LIKE ?', ('%' + letter + '%',))
+        cursor.execute('SELECT name FROM gods WHERE TRIM(mother) LIKE ?', ('%' + letter + '%',))
         field = "Mother"
     elif choice == "4":
-        cursor.execute('SELECT name FROM gods WHERE level_of_god LIKE ?', ('%' + letter + '%',))
+        cursor.execute('SELECT name FROM gods WHERE TRIM(level_of_god) LIKE ?', ('%' + letter + '%',))
         field = "Level of God"
     else:
         print("Invalid choice!")
@@ -149,8 +149,8 @@ def search_god_by_letter(cursor):
             print(god[0])
         print("#--------------------------------#")
         
-        selected_god = input("Enter the name of the God / Deity / Titan you want to display: ")
-        cursor.execute('SELECT * FROM gods WHERE name = ?', (selected_god,))
+        selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
+        cursor.execute('SELECT * FROM gods WHERE TRIM(name) = ?', (selected_god,))
         god = cursor.fetchone()
         if god:
             clear_screen()
@@ -171,7 +171,6 @@ def search_god_by_letter(cursor):
     
     input("Press enter to continue...")
     clear_screen()
-
 # Function to delete a God / Deity / Titan from the database
 def delete_god(cursor, conn):
     clear_screen()
