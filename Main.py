@@ -15,22 +15,22 @@ def clear_screen():
 
 # Function to create a database connection and table
 def create_connection():
-    conn = sqlite3.connect('gods.db')
-    cursor = conn.cursor()
-    create_parent_table(cursor)
-    create_gods_table(cursor)
-    create_log_table(cursor)
-    create_triggers(cursor)
-    migrate_data(cursor)
-    conn.commit()
-    return conn, cursor
+    conn = sqlite3.connect('gods.db')  # Connect to the SQLite database
+    cursor = conn.cursor()  # Create a cursor object
+    create_parent_table(cursor)  # Create the parents table
+    create_gods_table(cursor)  # Create the gods table
+    create_log_table(cursor)  # Create the log table
+    create_triggers(cursor)  # Create the triggers
+    migrate_data(cursor)  # Migrate existing data to the new structure
+    conn.commit()  # Commit the changes
+    return conn, cursor  # Return the connection and cursor
 
 # Function to create the parent table
 def create_parent_table(cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS parents (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL
+            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the parents table
+            name TEXT UNIQUE NOT NULL  # Unique name for each parent
         )
     ''')
 
@@ -38,18 +38,18 @@ def create_parent_table(cursor):
 def create_gods_table(cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gods_new (
-            name TEXT PRIMARY KEY,
+            name TEXT PRIMARY KEY,  # Primary key for the gods table
             title TEXT,
             god_of TEXT,
             symbol TEXT,
             greek_name TEXT,
             roman_name TEXT,
             description TEXT,
-            father_id INTEGER,
-            mother_id INTEGER,
+            father_id INTEGER,  # Foreign key referencing the parents table
+            mother_id INTEGER,  # Foreign key referencing the parents table
             level_of_god TEXT,
-            FOREIGN KEY (father_id) REFERENCES parents(id),
-            FOREIGN KEY (mother_id) REFERENCES parents(id)
+            FOREIGN KEY (father_id) REFERENCES parents(id),  # Foreign key constraint
+            FOREIGN KEY (mother_id) REFERENCES parents(id)  # Foreign key constraint
         )
     ''')
 
@@ -57,10 +57,10 @@ def create_gods_table(cursor):
 def create_log_table(cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS god_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the log table
             action TEXT,
             god_name TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP  # Default timestamp
         )
     ''')
 
@@ -70,7 +70,7 @@ def create_triggers(cursor):
         CREATE TRIGGER IF NOT EXISTS after_god_insert
         AFTER INSERT ON gods
         BEGIN
-            INSERT INTO god_logs (action, god_name) VALUES ('INSERT', NEW.name);
+            INSERT INTO god_logs (action, god_name) VALUES ('INSERT', NEW.name);  # Log insert action
         END;
     ''')
 
@@ -78,7 +78,7 @@ def create_triggers(cursor):
         CREATE TRIGGER IF NOT EXISTS after_god_delete
         AFTER DELETE ON gods
         BEGIN
-            INSERT INTO god_logs (action, god_name) VALUES ('DELETE', OLD.name);
+            INSERT INTO god_logs (action, god_name) VALUES ('DELETE', OLD.name);  # Log delete action
         END;
     ''')
 
