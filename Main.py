@@ -1,6 +1,7 @@
 import sqlite3
 import textwrap
 import os
+
 # Function to greet a user
 def greet(name):
     print(f"Hello, {name}!")
@@ -17,7 +18,6 @@ def create_connection():
     conn = sqlite3.connect('gods.db')  # Connect to the SQLite database
     cursor = conn.cursor()  # Create a cursor object
     create_parent_table(cursor)  # Create the parents table
-    create_level_table(cursor)  # Create the levels table
     create_gods_table(cursor)  # Create the gods table
     create_log_table(cursor)  # Create the log table
     create_triggers(cursor)  # Create the triggers
@@ -27,70 +27,67 @@ def create_connection():
 
 # Function to create the parent table
 def create_parent_table(cursor):
+    # Primary key for the parents table
+    # Unique name for each parent
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS parents (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the parents table
-            name TEXT UNIQUE NOT NULL  # Unique name for each parent
-        )
-    ''')
-
-# Function to create the levels table
-def create_level_table(cursor):
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS levels (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the levels table
-            level TEXT UNIQUE NOT NULL  # Unique level name
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL
         )
     ''')
 
 # Function to create the gods table
 def create_gods_table(cursor):
+    # Primary key for the gods table
+    # Foreign key referencing the parents table
+    # Foreign key constraint
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gods_new (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the gods table
-            name TEXT NOT NULL,  # Name of the god
+            name TEXT PRIMARY KEY,
             title TEXT,
             god_of TEXT,
             symbol TEXT,
             greek_name TEXT,
             roman_name TEXT,
             description TEXT,
-            father_id INTEGER,  # Foreign key referencing the parents table
-            mother_id INTEGER,  # Foreign key referencing the parents table
-            level_id INTEGER,  # Foreign key referencing the levels table
-            FOREIGN KEY (father_id) REFERENCES parents(id),  # Foreign key constraint
-            FOREIGN KEY (mother_id) REFERENCES parents(id),  # Foreign key constraint
-            FOREIGN KEY (level_id) REFERENCES levels(id)  # Foreign key constraint
+            father_id INTEGER,
+            mother_id INTEGER,
+            level_of_god TEXT,
+            FOREIGN KEY (father_id) REFERENCES parents(id),
+            FOREIGN KEY (mother_id) REFERENCES parents(id)
         )
     ''')
 
 # Function to create the log table
 def create_log_table(cursor):
+    # Primary key for the log table
+    # Default timestamp
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS god_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,  # Primary key for the log table
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             action TEXT,
-            god_id INTEGER,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,  # Default timestamp
-            FOREIGN KEY (god_id) REFERENCES gods(id)  # Foreign key constraint
+            god_name TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
 # Function to create triggers
 def create_triggers(cursor):
+    # Log insert action
     cursor.execute('''
         CREATE TRIGGER IF NOT EXISTS after_god_insert
         AFTER INSERT ON gods
         BEGIN
-            INSERT INTO god_logs (action, god_id) VALUES ('INSERT', NEW.id);  # Log insert action
+            INSERT INTO god_logs (action, god_name) VALUES ('INSERT', NEW.name);
         END;
     ''')
 
+    # Log delete action
     cursor.execute('''
         CREATE TRIGGER IF NOT EXISTS after_god_delete
         AFTER DELETE ON gods
         BEGIN
-            INSERT INTO god_logs (action, god_id) VALUES ('DELETE', OLD.id);  # Log delete action
+            INSERT INTO god_logs (action, god_name) VALUES ('DELETE', OLD.name);
         END;
     ''')
 
@@ -107,12 +104,6 @@ def migrate_data(cursor):
     for mother in mothers:
         cursor.execute('INSERT OR IGNORE INTO parents (name) VALUES (?)', (mother[0],))
 
-    # Insert unique levels into the levels table
-    cursor.execute('SELECT DISTINCT level_of_god FROM gods WHERE level_of_god IS NOT NULL')
-    levels = cursor.fetchall()
-    for level in levels:
-        cursor.execute('INSERT OR IGNORE INTO levels (level) VALUES (?)', (level[0],))
-
     # Migrate gods data to the new gods table
     cursor.execute('SELECT * FROM gods')
     gods = cursor.fetchall()
@@ -123,13 +114,10 @@ def migrate_data(cursor):
         cursor.execute('SELECT id FROM parents WHERE name = ?', (god[8],))
         mother_id = cursor.fetchone()[0] if god[8] else None
 
-        cursor.execute('SELECT id FROM levels WHERE level = ?', (god[9],))
-        level_id = cursor.fetchone()[0] if god[9] else None
-
         cursor.execute('''
-            INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
+            INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_of_god)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], father_id, mother_id, level_id))
+        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], father_id, mother_id, god[9]))
 
     # Drop the old gods table and rename the new one
     cursor.execute('DROP TABLE gods')
@@ -142,15 +130,6 @@ def get_or_create_parent(cursor, name):
     if parent:
         return parent[0]
     cursor.execute('INSERT INTO parents (name) VALUES (?)', (name,))
-    return cursor.lastrowid
-
-# Function to get or create a level
-def get_or_create_level(cursor, level):
-    cursor.execute('SELECT id FROM levels WHERE level = ?', (level,))
-    level_record = cursor.fetchone()
-    if level_record:
-        return level_record[0]
-    cursor.execute('INSERT INTO levels (level) VALUES (?)', (level,))
     return cursor.lastrowid
 
 # Function to add a new God / Deity / Titan to the database
@@ -169,12 +148,11 @@ def add_god(cursor, conn):
 
     father_id = get_or_create_parent(cursor, father_name)
     mother_id = get_or_create_parent(cursor, mother_name)
-    level_id = get_or_create_level(cursor, level_of_god)
     
     cursor.execute('''
-        INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
+        INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_of_god)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id))
+    ''', (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_of_god))
     conn.commit()
     print("God / Deity / Titan added successfully!")
     input("Press enter to continue...")
@@ -186,25 +164,24 @@ def search_god(cursor):
     name = input("Enter the name of the God / Deity / Titan: ").strip()
     name = textwrap.fill(name, width=70)  # Adjust width as needed
     cursor.execute('''
-        SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.level AS level_name
+        SELECT gods.*, p1.name AS father_name, p2.name AS mother_name
         FROM gods
         LEFT JOIN parents p1 ON gods.father_id = p1.id
         LEFT JOIN parents p2 ON gods.mother_id = p2.id
-        LEFT JOIN levels l ON gods.level_id = l.id
         WHERE TRIM(gods.name) = ?
     ''', (name,))
     god = cursor.fetchone()
     if god:
-        print(f"\033[1mName:\033[0m {god[1]}")
-        print(f"\033[1mTitle:\033[0m {god[2]}")
-        print(f"\033[1mGod of:\033[0m {god[3]}")
-        print(f"\033[1mSymbol:\033[0m {god[4]}")
-        print(f"\033[1mGreek Name:\033[0m {god[5]}")
-        print(f"\033[1mRoman Name:\033[0m {god[6]}")
-        print(f"\033[1mDescription:\033[0m {textwrap.fill(god[7], width=70)}")  # Adjust width as needed
-        print(f"\033[1mFather:\033[0m {god[11]}")  # father_name
-        print(f"\033[1mMother:\033[0m {god[12]}")  # mother_name
-        print(f"\033[1mLevel of God:\033[0m {god[13]}")  # level_name
+        print(f"\033[1mName:\033[0m {god[0]}")
+        print(f"\033[1mTitle:\033[0m {god[1]}")
+        print(f"\033[1mGod of:\033[0m {god[2]}")
+        print(f"\033[1mSymbol:\033[0m {god[3]}")
+        print(f"\033[1mGreek Name:\033[0m {god[4]}")
+        print(f"\033[1mRoman Name:\033[0m {god[5]}")
+        print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
+        print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
+        print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
+        print(f"\033[1mLevel of God:\033[0m {god[9]}")
     else:
         print("God / Deity / Titan not found.")
     input("Press enter to continue...")
@@ -242,12 +219,7 @@ def search_god_by_letter(cursor):
         ''', ('%' + letter + '%',))
         field = "Mother"
     elif choice == "4":
-        cursor.execute('''
-            SELECT gods.name
-            FROM gods
-            LEFT JOIN levels l ON gods.level_id = l.id
-            WHERE TRIM(l.level) LIKE ?
-        ''', ('%' + letter + '%',))
+        cursor.execute('SELECT name FROM gods WHERE TRIM(level_of_god) LIKE ?', ('%' + letter + '%',))
         field = "Level of God"
     else:
         print("Invalid choice!")
@@ -265,26 +237,25 @@ def search_god_by_letter(cursor):
         
         selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
         cursor.execute('''
-            SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.level AS level_name
+            SELECT gods.*, p1.name AS father_name, p2.name AS mother_name
             FROM gods
             LEFT JOIN parents p1 ON gods.father_id = p1.id
             LEFT JOIN parents p2 ON gods.mother_id = p2.id
-            LEFT JOIN levels l ON gods.level_id = l.id
             WHERE TRIM(gods.name) = ?
         ''', (selected_god,))
         god = cursor.fetchone()
         if god:
             clear_screen()
-            print(f"\033[1mName:\033[0m {god[1]}")
-            print(f"\033[1mTitle:\033[0m {god[2]}")
-            print(f"\033[1mGod of:\033[0m {god[3]}")
-            print(f"\033[1mSymbol:\033[0m {god[4]}")
-            print(f"\033[1mGreek Name:\033[0m {god[5]}")
-            print(f"\033[1mRoman Name:\033[0m {god[6]}")
-            print(f"\033[1mDescription:\033[0m {textwrap.fill(god[7], width=70)}")  # Adjust width as needed
-            print(f"\033[1mFather:\033[0m {god[11]}")  # father_name
-            print(f"\033[1mMother:\033[0m {god[12]}")  # mother_name
-            print(f"\033[1mLevel of God:\033[0m {god[13]}")  # level_name
+            print(f"\033[1mName:\033[0m {god[0]}")
+            print(f"\033[1mTitle:\033[0m {god[1]}")
+            print(f"\033[1mGod of:\033[0m {god[2]}")
+            print(f"\033[1mSymbol:\033[0m {god[3]}")
+            print(f"\033[1mGreek Name:\033[0m {god[4]}")
+            print(f"\033[1mRoman Name:\033[0m {god[5]}")
+            print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
+            print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
+            print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
+            print(f"\033[1mLevel of God:\033[0m {god[9]}")
         else:
             print("God / Deity / Titan not found!")
     else:
@@ -369,8 +340,7 @@ def edit_god(cursor, conn):
             cursor.execute('UPDATE gods SET mother_id = ? WHERE name = ?', (mother_id, name))
         elif choice == "9":
             new_value = input("Enter the new level of God / Deity / Titan: ")
-            level_id = get_or_create_level(cursor, new_value)
-            cursor.execute('UPDATE gods SET level_id = ? WHERE name = ?', (level_id, name))
+            cursor.execute('UPDATE gods SET level_of_god = ? WHERE name = ?', (new_value, name))
         conn.commit()
         print("God / Deity / Titan information updated successfully!")
     else:
@@ -389,8 +359,6 @@ def menu():
     print("7. Exit")
     choice = input("Enter your choice: ")
     return choice
-
-
 
 # Main program
 clear_screen()
