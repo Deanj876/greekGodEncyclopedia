@@ -15,15 +15,15 @@ def clear_screen():
 
 # Function to create a database connection and table
 def create_connection():
-    conn = sqlite3.connect('gods.db')  # Connect to the SQLite database
-    cursor = conn.cursor()  # Create a cursor object
-    create_parent_table(cursor)  # Create the parents table
-    create_gods_table(cursor)  # Create the gods table
-    create_log_table(cursor)  # Create the log table
-    create_triggers(cursor)  # Create the triggers
-    migrate_data(cursor)  # Migrate existing data to the new structure
-    conn.commit()  # Commit the changes
-    return conn, cursor  # Return the connection and cursor
+    conn = sqlite3.connect('gods.db')
+    cursor = conn.cursor()
+    create_parent_table(cursor)
+    create_gods_table(cursor)
+    create_log_table(cursor)
+    create_triggers(cursor)
+    migrate_data(cursor)
+    conn.commit()
+    return conn, cursor
 
 # Function to create the parent table
 def create_parent_table(cursor):
