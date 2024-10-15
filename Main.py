@@ -52,10 +52,6 @@ def create_gods_table(cursor):
             FOREIGN KEY (mother_id) REFERENCES parents(id)
         )
     ''')
-    create_log_table(cursor)
-    create_triggers(cursor)
-    conn.commit()
-    return conn, cursor
 
 # Function to create the log table
 def create_log_table(cursor):
@@ -137,8 +133,8 @@ def add_god(cursor, conn):
     greek_name = input("Enter the Greek name of the God / Deity / Titan: ")
     roman_name = input("Enter the Roman name of the God / Deity / Titan: ")
     description = input("Enter the description of the God / Deity / Titan: ")
-    father = input("Enter the God / Deity / Titan's father: ")
-    mother = input("Enter the God / Deity / Titan's mother: ")
+    father_name = input("Enter the God / Deity / Titan's father: ")
+    mother_name = input("Enter the God / Deity / Titan's mother: ")
     level_of_god = input("Enter the level of the God / Deity / Titan (e.g., Major God / Olympian): ")
 
     father_id = get_or_create_parent(cursor, father_name)
@@ -198,18 +194,23 @@ def search_god_by_letter(cursor):
         cursor.execute('SELECT name FROM gods WHERE TRIM(name) LIKE ?', ('%' + letter + '%',))
         field = "Name"
     elif choice == "2":
-        cursor.execute('SELECT name FROM gods WHERE TRIM(father) LIKE ?', ('%' + letter + '%',))
-        field = "Father"
-    elif choice == "3":
-        cursor.execute('SELECT name FROM gods WHERE TRIM(mother) LIKE ?', ('%' + letter + '%',))
-        field = "Mother"
-    elif choice == "4":
         cursor.execute('''
             SELECT gods.name
             FROM gods
-            LEFT JOIN levels l ON gods.level_id = l.id
-            WHERE TRIM(l.level) LIKE ?
+            LEFT JOIN parents p1 ON gods.father_id = p1.id
+            WHERE TRIM(p1.name) LIKE ?
         ''', ('%' + letter + '%',))
+        field = "Father"
+    elif choice == "3":
+        cursor.execute('''
+            SELECT gods.name
+            FROM gods
+            LEFT JOIN parents p2 ON gods.mother_id = p2.id
+            WHERE TRIM(p2.name) LIKE ?
+        ''', ('%' + letter + '%',))
+        field = "Mother"
+    elif choice == "4":
+        cursor.execute('SELECT name FROM gods WHERE TRIM(level_of_god) LIKE ?', ('%' + letter + '%',))
         field = "Level of God"
     else:
         print("Invalid choice!")
@@ -253,6 +254,7 @@ def search_god_by_letter(cursor):
     
     input("Press enter to continue...")
     clear_screen()
+
 # Function to delete a God / Deity / Titan from the database
 def delete_god(cursor, conn):
     clear_screen()
@@ -321,39 +323,21 @@ def edit_god(cursor, conn):
             cursor.execute('UPDATE gods SET description = ? WHERE name = ?', (new_value, name))
         elif choice == "7":
             new_value = input("Enter the new father: ")
-            cursor.execute('UPDATE gods SET father = ? WHERE name = ?', (new_value, name))
+            father_id = get_or_create_parent(cursor, new_value)
+            cursor.execute('UPDATE gods SET father_id = ? WHERE name = ?', (father_id, name))
         elif choice == "8":
             new_value = input("Enter the new mother: ")
-            cursor.execute('UPDATE gods SET mother = ? WHERE name = ?', (new_value, name))
+            mother_id = get_or_create_parent(cursor, new_value)
+            cursor.execute('UPDATE gods SET mother_id = ? WHERE name = ?', (mother_id, name))
         elif choice == "9":
             new_value = input("Enter the new level of God / Deity / Titan: ")
-            level_id = get_or_create_level(cursor, new_value)
-            cursor.execute('UPDATE gods SET level_id = ? WHERE name = ?', (level_id, name))
+            cursor.execute('UPDATE gods SET level_of_god = ? WHERE name = ?', (new_value, name))
         conn.commit()
         print("God / Deity / Titan information updated successfully!")
     else:
         print("God / Deity / Titan not found!")
     input("Press enter to continue...")
     clear_screen()
-    
-def check_and_update_schema():
-    conn = sqlite3.connect('your_database.db')
-    cursor = conn.cursor()
-
-    # Check the schema
-    cursor.execute("PRAGMA table_info(gods);")
-    columns = [column[1] for column in cursor.fetchall()]
-
-    # If 'father' column is missing, add it
-    if 'father' not in columns:
-        cursor.execute("ALTER TABLE gods ADD COLUMN father TEXT;")
-        conn.commit()
-
-    # Verify the column has been added
-    cursor.execute("PRAGMA table_info(gods);")
-    print(cursor.fetchall())
-
-    conn.close()
 
 # Function to display the menu
 def menu():
@@ -367,7 +351,6 @@ def menu():
     choice = input("Enter your choice: ")
     return choice
 
-check_and_update_schema()
 # Main program
 clear_screen()
 greet("John Doe")
