@@ -117,8 +117,7 @@ def migrate_data(cursor):
     # Drop the old gods table and rename the new one
     cursor.execute('DROP TABLE gods')
     cursor.execute('ALTER TABLE gods_new RENAME TO gods')
-
-
+    
 # Function to get or create a parent
 def get_or_create_parent(cursor, name):
     cursor.execute('SELECT id FROM parents WHERE name = ?', (name,))
@@ -150,7 +149,6 @@ def add_god(cursor, conn):
     father_name = input("Enter the God / Deity / Titan's father: ")
     mother_name = input("Enter the God / Deity / Titan's mother: ")
     level_name = input("Enter the level of the God / Deity / Titan (e.g., Major God / Olympian): ")
-
     father_id = get_or_create_parent(cursor, father_name)
     mother_id = get_or_create_parent(cursor, mother_name)
     level_id = get_or_create_level(cursor, level_name)
