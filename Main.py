@@ -94,45 +94,30 @@ def create_triggers(cursor):
     ''')
 
 # Function to migrate existing data
+# Function to migrate existing data
 def migrate_data(cursor):
-    # Insert unique parents into the parents table
-    cursor.execute('SELECT DISTINCT father FROM gods WHERE father IS NOT NULL')
-    fathers = cursor.fetchall()
-    for father in fathers:
-        cursor.execute('INSERT OR IGNORE INTO parents (name) VALUES (?)', (father[0],))
-
-    cursor.execute('SELECT DISTINCT mother FROM gods WHERE mother IS NOT NULL')
-    mothers = cursor.fetchall()
-    for mother in mothers:
-        cursor.execute('INSERT OR IGNORE INTO parents (name) VALUES (?)', (mother[0],))
-
     # Insert unique levels into the levels table
-    cursor.execute('SELECT DISTINCT level_of_god FROM gods WHERE level_of_god IS NOT NULL')
-    levels = cursor.fetchall()
-    for level in levels:
-        cursor.execute('INSERT OR IGNORE INTO levels (name) VALUES (?)', (level[0],))
+    # cursor.execute('SELECT DISTINCT level_of_god FROM gods WHERE level_of_god IS NOT NULL')
+    # levels = cursor.fetchall()
+    # for level in levels:
+    #     cursor.execute('INSERT OR IGNORE INTO levels (name) VALUES (?)', (level[0],))
 
     # Migrate gods data to the new gods table
     cursor.execute('SELECT * FROM gods')
     gods = cursor.fetchall()
     for god in gods:
-        cursor.execute('SELECT id FROM parents WHERE name = ?', (god[7],))
-        father_id = cursor.fetchone()[0] if god[7] else None
-
-        cursor.execute('SELECT id FROM parents WHERE name = ?', (god[8],))
-        mother_id = cursor.fetchone()[0] if god[8] else None
-
-        cursor.execute('SELECT id FROM levels WHERE name = ?', (god[9],))
-        level_id = cursor.fetchone()[0] if god[9] else None
+        # cursor.execute('SELECT id FROM levels WHERE name = ?', (god[9],))
+        # level_id = cursor.fetchone()[0] if god[9] else None
 
         cursor.execute('''
             INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], father_id, mother_id, level_id))
+        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], god[7], god[8], god[9]))
 
     # Drop the old gods table and rename the new one
     cursor.execute('DROP TABLE gods')
     cursor.execute('ALTER TABLE gods_new RENAME TO gods')
+
 
 # Function to get or create a parent
 def get_or_create_parent(cursor, name):
