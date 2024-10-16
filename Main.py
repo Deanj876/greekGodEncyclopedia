@@ -18,7 +18,11 @@ def create_connection():
     conn = sqlite3.connect('gods.db')
     cursor = conn.cursor()
     create_parent_table(cursor)
+<<<<<<< HEAD
     create_level_table(cursor)  # Create the levels table
+=======
+    create_levels_table(cursor)
+>>>>>>> test-main
     create_gods_table(cursor)
     create_log_table(cursor)
     create_triggers(cursor)
@@ -36,11 +40,19 @@ def create_parent_table(cursor):
     ''')
 
 # Function to create the levels table
+<<<<<<< HEAD
 def create_level_table(cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS levels (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             level TEXT UNIQUE NOT NULL
+=======
+def create_levels_table(cursor):
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS levels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL
+>>>>>>> test-main
         )
     ''')
 
@@ -107,15 +119,23 @@ def migrate_data(cursor):
         cursor.execute('INSERT OR IGNORE INTO parents (name) VALUES (?)', (mother[0],))
 
     # Insert unique levels into the levels table
+<<<<<<< HEAD
     cursor.execute('SELECT DISTINCT level FROM gods WHERE level IS NOT NULL')
     levels = cursor.fetchall()
     for level in levels:
         cursor.execute('INSERT OR IGNORE INTO levels (level) VALUES (?)', (level[0],))
+=======
+    cursor.execute('SELECT DISTINCT level_of_god FROM gods WHERE level_of_god IS NOT NULL')
+    levels = cursor.fetchall()
+    for level in levels:
+        cursor.execute('INSERT OR IGNORE INTO levels (name) VALUES (?)', (level[0],))
+>>>>>>> test-main
 
     # Migrate gods data to the new gods table
     cursor.execute('SELECT * FROM gods')
     gods = cursor.fetchall()
     for god in gods:
+<<<<<<< HEAD
         father_id = None
         if god[7]:
             cursor.execute('SELECT id FROM parents WHERE name = ?', (god[7],))
@@ -136,6 +156,16 @@ def migrate_data(cursor):
             level_record = cursor.fetchone()
             if level_record:
                 level_id = level_record[0]
+=======
+        cursor.execute('SELECT id FROM parents WHERE name = ?', (god[7],))
+        father_id = cursor.fetchone()[0] if god[7] else None
+
+        cursor.execute('SELECT id FROM parents WHERE name = ?', (god[8],))
+        mother_id = cursor.fetchone()[0] if god[8] else None
+
+        cursor.execute('SELECT id FROM levels WHERE name = ?', (god[9],))
+        level_id = cursor.fetchone()[0] if god[9] else None
+>>>>>>> test-main
 
         cursor.execute('''
             INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
@@ -156,12 +186,21 @@ def get_or_create_parent(cursor, name):
     return cursor.lastrowid
 
 # Function to get or create a level
+<<<<<<< HEAD
 def get_or_create_level(cursor, level):
     cursor.execute('SELECT id FROM levels WHERE level = ?', (level,))
     level_record = cursor.fetchone()
     if level_record:
         return level_record[0]
     cursor.execute('INSERT INTO levels (level) VALUES (?)', (level,))
+=======
+def get_or_create_level(cursor, name):
+    cursor.execute('SELECT id FROM levels WHERE name = ?', (name,))
+    level = cursor.fetchone()
+    if level:
+        return level[0]
+    cursor.execute('INSERT INTO levels (name) VALUES (?)', (name,))
+>>>>>>> test-main
     return cursor.lastrowid
 
 # Function to add a new God / Deity / Titan to the database
@@ -176,11 +215,19 @@ def add_god(cursor, conn):
     description = input("Enter the description of the God / Deity / Titan: ")
     father_name = input("Enter the God / Deity / Titan's father: ")
     mother_name = input("Enter the God / Deity / Titan's mother: ")
+<<<<<<< HEAD
     level_of_god = input("Enter the level of the God / Deity / Titan (e.g., Major God / Olympian): ")
 
     father_id = get_or_create_parent(cursor, father_name)
     mother_id = get_or_create_parent(cursor, mother_name)
     level_id = get_or_create_level(cursor, level_of_god)
+=======
+    level_name = input("Enter the level of the God / Deity / Titan (e.g., Major God / Olympian): ")
+
+    father_id = get_or_create_parent(cursor, father_name)
+    mother_id = get_or_create_parent(cursor, mother_name)
+    level_id = get_or_create_level(cursor, level_name)
+>>>>>>> test-main
     
     cursor.execute('''
         INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
@@ -197,7 +244,11 @@ def search_god(cursor):
     name = input("Enter the name of the God / Deity / Titan: ").strip()
     name = textwrap.fill(name, width=70)  # Adjust width as needed
     cursor.execute('''
+<<<<<<< HEAD
         SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.level AS level_of_god
+=======
+        SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.name AS level_name
+>>>>>>> test-main
         FROM gods
         LEFT JOIN parents p1 ON gods.father_id = p1.id
         LEFT JOIN parents p2 ON gods.mother_id = p2.id
@@ -215,7 +266,11 @@ def search_god(cursor):
         print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
         print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
         print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
+<<<<<<< HEAD
         print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_of_god
+=======
+        print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_name
+>>>>>>> test-main
     else:
         print("God / Deity / Titan not found.")
     input("Press enter to continue...")
@@ -257,7 +312,11 @@ def search_god_by_letter(cursor):
             SELECT gods.name
             FROM gods
             LEFT JOIN levels l ON gods.level_id = l.id
+<<<<<<< HEAD
             WHERE TRIM(l.level) LIKE ?
+=======
+            WHERE TRIM(l.name) LIKE ?
+>>>>>>> test-main
         ''', ('%' + letter + '%',))
         field = "Level of God"
     else:
@@ -276,7 +335,11 @@ def search_god_by_letter(cursor):
         
         selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
         cursor.execute('''
+<<<<<<< HEAD
             SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.level AS level_of_god
+=======
+            SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.name AS level_name
+>>>>>>> test-main
             FROM gods
             LEFT JOIN parents p1 ON gods.father_id = p1.id
             LEFT JOIN parents p2 ON gods.mother_id = p2.id
@@ -295,7 +358,11 @@ def search_god_by_letter(cursor):
             print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
             print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
             print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
+<<<<<<< HEAD
             print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_of_god
+=======
+            print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_name
+>>>>>>> test-main
         else:
             print("God / Deity / Titan not found!")
     else:
