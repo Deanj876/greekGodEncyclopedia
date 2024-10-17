@@ -58,6 +58,7 @@ def create_gods_table(cursor):
             father_id INTEGER,
             mother_id INTEGER,
             level_id INTEGER,
+            flagged BOOLEAN DEFAULT FALSE,
             FOREIGN KEY (father_id) REFERENCES parents(id),
             FOREIGN KEY (mother_id) REFERENCES parents(id),
             FOREIGN KEY (level_id) REFERENCES levels(id)
@@ -93,7 +94,19 @@ def create_triggers(cursor):
         END;
     ''')
 
-# Function to migrate existing data
+# Function to flag a gods record
+def flag_god(cursor, conn):
+    clear_screen()
+    name = input("Enter the name of the God / Deity / Titan to flag: ")
+    cursor.execute('UPDATE gods SET flagged = TRUE WHERE name = ?', (name,))
+    conn.commit()
+    if cursor.rowcount > 0:
+        print("God / Deity / Titan flagged successfully!")
+    else:
+        print("God / Deity / Titan not found!")
+    input("Press enter to continue...")
+    clear_screen()
+
 # Function to migrate existing data
 def migrate_data(cursor):
     # Insert unique levels into the levels table
@@ -368,7 +381,8 @@ def menu():
     print("4. Delete a God / Deity / Titan")
     print("5. Display all Gods / Deities / Titans")
     print("6. Edit a God / Deity / Titan")
-    print("7. Exit")
+    print("7. Flag a God / Deity / Titan")
+    print("8. Exit")
     choice = input("Enter your choice: ")
     return choice
 
@@ -391,6 +405,8 @@ while True:
     elif choice == "6":
         edit_god(cursor, conn)
     elif choice == "7":
+        flag_god(cursor, conn)
+    elif choice == "8":
         break
     else:
         print("Invalid choice!")
