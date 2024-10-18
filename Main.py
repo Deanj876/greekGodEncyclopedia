@@ -107,6 +107,46 @@ def flag_god(cursor, conn):
     input("Press enter to continue...")
     clear_screen()
 
+# Function to fetch and print gods
+def fetch_and_print_gods(cursor, query, params=()):
+    cursor.execute(query, params)
+    gods = cursor.fetchall()
+    if gods:
+        print("#--------------------------------#")
+        for god in gods:
+            print(god[0])
+        print("#--------------------------------#")
+        print("\nTotal Gods / Deities / Titans:", len(gods))
+        print("#--------------------------------#")
+        selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
+        cursor.execute('''
+            SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.name AS level_name
+            FROM gods
+            LEFT JOIN parents p1 ON gods.father_id = p1.id
+            LEFT JOIN parents p2 ON gods.mother_id = p2.id
+            LEFT JOIN levels l ON gods.level_id = l.id
+            WHERE TRIM(gods.name) = ? AND gods.flagged = FALSE
+        ''', (selected_god,))
+        god = cursor.fetchone()
+        if god:
+            clear_screen()
+            print(f"\033[1mName:\033[0m {god[0]}")
+            print(f"\033[1mTitle:\033[0m {god[1]}")
+            print(f"\033[1mGod of:\033[0m {god[2]}")
+            print(f"\033[1mSymbol:\033[0m {god[3]}")
+            print(f"\033[1mGreek Name:\033[0m {god[4]}")
+            print(f"\033[1mRoman Name:\033[0m {god[5]}")
+            print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
+            print(f"\033[1mFather:\033[0m {god[11]}")  # father_name
+            print(f"\033[1mMother:\033[0m {god[12]}")  # mother_name
+            print(f"\033[1mLevel of God:\033[0m {god[13]}")  # level_name
+        else:
+            print("God / Deity / Titan not found or is flagged.")
+    else:
+        print("No Gods / Deities / Titans found!")
+    input("Press enter to continue...")
+    clear_screen()
+
 # Function to migrate existing data
 def migrate_data(cursor):
     # Insert unique levels into the levels table
@@ -179,31 +219,9 @@ def add_god(cursor, conn):
 def search_god(cursor):
     clear_screen()
     name = input("Enter the name of the God / Deity / Titan: ").strip()
-    name = textwrap.fill(name, width=70)  # Adjust width as needed
-    cursor.execute('''
-        SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.name AS level_name
-        FROM gods
-        LEFT JOIN parents p1 ON gods.father_id = p1.id
-        LEFT JOIN parents p2 ON gods.mother_id = p2.id
-        LEFT JOIN levels l ON gods.level_id = l.id
-        WHERE TRIM(gods.name) = ?
+    fetch_and_print_gods(cursor, '''
+        SELECT name FROM gods WHERE TRIM(name) = ? AND flagged = FALSE
     ''', (name,))
-    god = cursor.fetchone()
-    if god:
-        print(f"\033[1mName:\033[0m {god[0]}")
-        print(f"\033[1mTitle:\033[0m {god[1]}")
-        print(f"\033[1mGod of:\033[0m {god[2]}")
-        print(f"\033[1mSymbol:\033[0m {god[3]}")
-        print(f"\033[1mGreek Name:\033[0m {god[4]}")
-        print(f"\033[1mRoman Name:\033[0m {god[5]}")
-        print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
-        print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
-        print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
-        print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_name
-    else:
-        print("God / Deity / Titan not found.")
-    input("Press enter to continue...")
-    clear_screen()
 
 # Function to search for a God / Deity / Titan in the database by letter or word
 def search_god_by_letter(cursor):
@@ -218,75 +236,39 @@ def search_god_by_letter(cursor):
     print("#--------------------------------#")
     
     if choice == "1":
-        cursor.execute('SELECT name FROM gods WHERE TRIM(name) LIKE ?', ('%' + letter + '%',))
-        field = "Name"
+        query = 'SELECT name FROM gods WHERE TRIM(name) LIKE ? AND flagged = FALSE'
+        params = ('%' + letter + '%',)
     elif choice == "2":
-        cursor.execute('''
+        query = '''
             SELECT gods.name
             FROM gods
             LEFT JOIN parents p1 ON gods.father_id = p1.id
-            WHERE TRIM(p1.name) LIKE ?
-        ''', ('%' + letter + '%',))
-        field = "Father"
+            WHERE TRIM(p1.name) LIKE ? AND gods.flagged = FALSE
+        '''
+        params = ('%' + letter + '%',)
     elif choice == "3":
-        cursor.execute('''
+        query = '''
             SELECT gods.name
             FROM gods
             LEFT JOIN parents p2 ON gods.mother_id = p2.id
-            WHERE TRIM(p2.name) LIKE ?
-        ''', ('%' + letter + '%',))
-        field = "Mother"
+            WHERE TRIM(p2.name) LIKE ? AND gods.flagged = FALSE
+        '''
+        params = ('%' + letter + '%',)
     elif choice == "4":
-        cursor.execute('''
+        query = '''
             SELECT gods.name
             FROM gods
             LEFT JOIN levels l ON gods.level_id = l.id
-            WHERE TRIM(l.name) LIKE ?
-        ''', ('%' + letter + '%',))
-        field = "Level of God"
+            WHERE TRIM(l.name) LIKE ? AND gods.flagged = FALSE
+        '''
+        params = ('%' + letter + '%',)
     else:
         print("Invalid choice!")
         input("Press enter to continue...")
         clear_screen()
         return
 
-    gods = cursor.fetchall()
-    if gods:
-        print(f"Gods / Deities / Titans found by {field}:")
-        print("#--------------------------------#")
-        for god in gods:
-            print(god[0])
-        print("#--------------------------------#")
-        
-        selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
-        cursor.execute('''
-            SELECT gods.*, p1.name AS father_name, p2.name AS mother_name, l.name AS level_name
-            FROM gods
-            LEFT JOIN parents p1 ON gods.father_id = p1.id
-            LEFT JOIN parents p2 ON gods.mother_id = p2.id
-            LEFT JOIN levels l ON gods.level_id = l.id
-            WHERE TRIM(gods.name) = ?
-        ''', (selected_god,))
-        god = cursor.fetchone()
-        if god:
-            clear_screen()
-            print(f"\033[1mName:\033[0m {god[0]}")
-            print(f"\033[1mTitle:\033[0m {god[1]}")
-            print(f"\033[1mGod of:\033[0m {god[2]}")
-            print(f"\033[1mSymbol:\033[0m {god[3]}")
-            print(f"\033[1mGreek Name:\033[0m {god[4]}")
-            print(f"\033[1mRoman Name:\033[0m {god[5]}")
-            print(f"\033[1mDescription:\033[0m {textwrap.fill(god[6], width=70)}")  # Adjust width as needed
-            print(f"\033[1mFather:\033[0m {god[10]}")  # father_name
-            print(f"\033[1mMother:\033[0m {god[11]}")  # mother_name
-            print(f"\033[1mLevel of God:\033[0m {god[12]}")  # level_name
-        else:
-            print("God / Deity / Titan not found!")
-    else:
-        print("No Gods / Deities / Titans found!")
-    
-    input("Press enter to continue...")
-    clear_screen()
+    fetch_and_print_gods(cursor, query, params)
 
 # Function to delete a God / Deity / Titan from the database
 def delete_god(cursor, conn):
@@ -304,19 +286,7 @@ def delete_god(cursor, conn):
 # Function to display all the Gods / Deities / Titans in the database
 def display_gods(cursor):
     clear_screen()
-    cursor.execute('SELECT name FROM gods ORDER BY name')
-    gods = cursor.fetchall()
-    if gods:
-        print("#--------------------------------#")
-        for god in gods:
-            print(god[0])
-        print("#--------------------------------#")
-        print("\nTotal Gods / Deities / Titans:", len(gods))
-        print("#--------------------------------#")
-        input("Press enter to continue...")
-        clear_screen()
-    else:
-        print("No Gods / Deities / Titans found!")
+    fetch_and_print_gods(cursor, 'SELECT name FROM gods WHERE flagged = FALSE ORDER BY name')
 
 # Function to edit the information of a God / Deity / Titan in the database
 def edit_god(cursor, conn):
