@@ -107,6 +107,54 @@ def flag_god(cursor, conn):
     input("Press enter to continue...")
     clear_screen()
 
+# Function to unflag a gods record
+def unflag_god(cursor, conn):
+    # Display flagged records
+    clear_screen()
+    cursor.execute('''
+        SELECT name, title, god_of, symbol, greek_name, roman_name, description
+        FROM gods
+        WHERE flagged = TRUE
+    ''')
+    flagged_gods = cursor.fetchall()
+    
+    if flagged_gods:
+        print("#--------------------------------#")
+        for index, god in enumerate(flagged_gods, start=1):
+            print(f"Record {index}: Name: {god[0]}")
+        print("#--------------------------------#")
+        
+        # Ask the user which record to unflag
+        selected_index = input("Enter the record number of the God / Deity / Titan you want to unflag: ").strip()
+        
+        try:
+            selected_index = int(selected_index) - 1
+            if 0 <= selected_index < len(flagged_gods):
+                selected_god = flagged_gods[selected_index][0]
+                
+                # Unflag the selected record
+                cursor.execute('''
+                    UPDATE gods
+                    SET flagged = FALSE
+                    WHERE TRIM(name) = ?
+                ''', (selected_god,))
+                
+                if cursor.rowcount > 0:
+                    print(f"The record for {selected_god} has been unflagged.")
+                else:
+                    print(f"No flagged record found for {selected_god}.")
+                
+                conn.commit()
+            else:
+                print("Invalid record number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid record number.")
+    else:
+        print("No flagged records found.")
+    
+    input("Press enter to continue...")
+    clear_screen()
+
 # Function to fetch and print gods
 def fetch_and_print_gods(cursor, query, params=()):
     cursor.execute(query, params)
@@ -173,9 +221,9 @@ def migrate_data(cursor):
         # level_id = cursor.fetchone()[0] if god[9] else None
 
         cursor.execute('''
-            INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], god[7], god[8], god[9]))
+            INSERT INTO gods_new (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id, flagged)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (god[0], god[1], god[2], god[3], god[4], god[5], god[6], god[7], god[8], god[9], god[10]))  # Include flagged column
 
     # Drop the old gods table and rename the new one
     cursor.execute('DROP TABLE gods')
@@ -362,7 +410,8 @@ def menu():
     print("5. Display all Gods / Deities / Titans")
     print("6. Edit a God / Deity / Titan")
     print("7. Flag a God / Deity / Titan")
-    print("8. Exit")
+    print("8. Unflag a God / Deity / Titan")
+    print("9. Exit")
     choice = input("Enter your choice: ")
     return choice
 
@@ -375,22 +424,24 @@ while True:
     if choice == "1":
         add_god(cursor, conn)
     elif choice == "2":
-        search_god(cursor)
-    elif choice == "3":
-        search_god_by_letter(cursor)
-    elif choice == "4":
-        delete_god(cursor, conn)
-    elif choice == "5":
-        display_gods(cursor)
-    elif choice == "6":
         edit_god(cursor, conn)
+    elif choice == "3":
+        delete_god(cursor, conn)
+    elif choice == "4":
+        display_gods(cursor)
+    elif choice == "5":
+        search_god(cursor)
+    elif choice == "6":
+        search_god_by_letter(cursor)
     elif choice == "7":
         flag_god(cursor, conn)
     elif choice == "8":
+        unflag_god(cursor, conn)  # Add this line
+    elif choice == "9":
         break
     else:
-        print("Invalid choice!")
-        input("Press enter to continue...")
-        clear_screen()
+        print("Invalid choice! Please try again.")
+    input("Press enter to continue...")
+    clear_screen()
 clear_screen()
 conn.close()
