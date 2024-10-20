@@ -112,10 +112,20 @@ def fetch_and_print_gods(cursor, query, params=()):
     cursor.execute(query, params)
     gods = cursor.fetchall()
     if gods:
-        print("#--------------------------------#")
+        gods_by_initial = {}
         for god in gods:
-            print(god[0])
-        print("#--------------------------------#")
+            initial = god[0][0].upper()
+            if initial not in gods_by_initial:
+                gods_by_initial[initial] = []
+            gods_by_initial[initial].append(god)
+
+        for initial in sorted(gods_by_initial.keys()):
+            print(f"Initial: {initial}")
+            print("#--------------------------------#")
+            for god in gods_by_initial[initial]:
+                print(god[0])
+            print("#--------------------------------#")
+        
         print("\nTotal Gods / Deities / Titans:", len(gods))
         print("#--------------------------------#")
         selected_god = input("Enter the name of the God / Deity / Titan you want to display: ").strip()
