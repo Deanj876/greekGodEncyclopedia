@@ -424,15 +424,15 @@ while True:
     if choice == "1":
         add_god(cursor, conn)
     elif choice == "2":
-        edit_god(cursor, conn)
-    elif choice == "3":
-        delete_god(cursor, conn)
-    elif choice == "4":
-        display_gods(cursor)
-    elif choice == "5":
         search_god(cursor)
-    elif choice == "6":
+    elif choice == "3":
         search_god_by_letter(cursor)
+    elif choice == "4":
+        delete_god(cursor, conn)
+    elif choice == "5":
+        display_gods(cursor)
+    elif choice == "6":
+        edit_god(cursor, conn)
     elif choice == "7":
         flag_god(cursor, conn)
     elif choice == "8":
