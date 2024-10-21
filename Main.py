@@ -162,10 +162,11 @@ def fetch_and_print_gods(cursor, query, params=()):
     if gods:
         gods_by_initial = {}
         for god in gods:
-            initial = god[0][0].upper()
-            if initial not in gods_by_initial:
-                gods_by_initial[initial] = []
-            gods_by_initial[initial].append(god)
+            if god and god[0]:  # Check if god is not empty and has at least one character
+                initial = god[0][0].upper()
+                if initial not in gods_by_initial:
+                    gods_by_initial[initial] = []
+                gods_by_initial[initial].append(god)
 
         for initial in sorted(gods_by_initial.keys()):
             print(f"Initial: {initial}")
