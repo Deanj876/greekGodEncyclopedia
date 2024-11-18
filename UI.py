@@ -507,6 +507,7 @@ class MainWindow(QMainWindow):
             mother_name = self.cursor.fetchone()
             mother_name = mother_name[0] if mother_name else "Unknown"
 
+            # No pulling id value equivalent to level_id
             self.cursor.execute('SELECT name FROM levels WHERE id = ?', (god[10],))
             level_name = self.cursor.fetchone()
             level_name = level_name[0] if level_name else "Unknown"
@@ -514,7 +515,7 @@ class MainWindow(QMainWindow):
             # Ensure the description is treated as a string
             description = str(god[6])
             paragraphs = description.split('\n')
-            formatted_description = '\n\n'.join(paragraphs)
+            formatted_description = description.replace('. ', '.\t\n')
 
             god_info = {
                 "Name": god[0],
