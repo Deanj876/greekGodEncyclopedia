@@ -48,12 +48,23 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
         self.conn, self.cursor = self.create_connection()
-
     def add_button(self, label, function, layout):
         button = QPushButton(label)
         button.clicked.connect(function)
         layout.addWidget(button)
 
+    #---------- Add God Section ----------# (Done)
+    def add_god(self, name, title, god_of, symbol, greek_name, roman_name, description, father_name, mother_name, level_name):
+        father_id = self.get_or_create_parent(father_name)
+        mother_id = self.get_or_create_parent(mother_name)
+        level_id = self.get_or_create_level(level_name)
+
+        self.cursor.execute('''
+            INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id))
+        self.conn.commit()
+        print("God / Deity / Titan added successfully!")
     def show_add_god_form(self):
         self.form_window = QWidget()
         self.form_window.setWindowTitle("Add God / Deity / Titan")
@@ -88,7 +99,6 @@ class MainWindow(QMainWindow):
 
         self.form_window.setLayout(form_layout)
         self.form_window.show()
-
     def submit_add_god_form(self):
         name = self.name_input.text()
         god_of = self.god_of_input.text()
@@ -113,57 +123,39 @@ class MainWindow(QMainWindow):
 
         self.output.append("God / Deity / Titan added successfully!")
         self.form_window.close()
+    #---------- Edit God Section ----------#
+    def edit_god(self, name, new_name=None, new_title=None, new_god_of=None, new_symbol=None, new_greek_name=None, new_roman_name=None, new_description=None, new_father_name=None, new_mother_name=None, new_level_name=None):
+        god = self.search_god(name)
+        if not god:
+            print("God / Deity / Titan not found.")
+            return
 
-    def show_search_god_by_letter_form(self):
-        self.form_window = QWidget()
-        self.form_window.setWindowTitle("Search God / Deity / Titan by Letter")
+        if new_name:
+            self.cursor.execute('UPDATE gods SET name = ? WHERE name = ?', (new_name, name))
+        if new_title:
+            self.cursor.execute('UPDATE gods SET title = ? WHERE name = ?', (new_title, name))
+        if new_god_of:
+            self.cursor.execute('UPDATE gods SET god_of = ? WHERE name = ?', (new_god_of, name))
+        if new_symbol:
+            self.cursor.execute('UPDATE gods SET symbol = ? WHERE name = ?', (new_symbol, name))
+        if new_greek_name:
+            self.cursor.execute('UPDATE gods SET greek_name = ? WHERE name = ?', (new_greek_name, name))
+        if new_roman_name:
+            self.cursor.execute('UPDATE gods SET roman_name = ? WHERE name = ?', (new_roman_name, name))
+        if new_description:
+            self.cursor.execute('UPDATE gods SET description = ? WHERE name = ?', (new_description, name))
+        if new_father_name:
+            father_id = self.get_or_create_parent(new_father_name)
+            self.cursor.execute('UPDATE gods SET father_id = ? WHERE name = ?', (father_id, name))
+        if new_mother_name:
+            mother_id = self.get_or_create_parent(new_mother_name)
+            self.cursor.execute('UPDATE gods SET mother_id = ? WHERE name = ?', (mother_id, name))
+        if new_level_name:
+            level_id = self.get_or_create_level(new_level_name)
+            self.cursor.execute('UPDATE gods SET level_id = ? WHERE name = ?', (level_id, name))
 
-        form_layout = QFormLayout()
-
-        self.search_letter_input = QLineEdit()
-        form_layout.addRow("Letter or Word:", self.search_letter_input)
-
-        submit_button = QPushButton("Search")
-        submit_button.clicked.connect(self.submit_search_god_by_letter_form)
-        form_layout.addWidget(submit_button)
-
-        self.form_window.setLayout(form_layout)
-        self.form_window.show()
-
-    def submit_search_god_by_letter_form(self):
-        letter = self.search_letter_input.text().strip()
-        self.fetch_and_print_gods('SELECT name FROM gods WHERE TRIM(name) LIKE ? AND flagged = FALSE', ('%' + letter + '%',))
-        self.form_window.close()
-
-    def show_delete_god_form(self):
-        self.form_window = QWidget()
-        self.form_window.setWindowTitle("Delete God / Deity / Titan")
-
-        form_layout = QFormLayout()
-
-        self.delete_name_input = QLineEdit()
-        form_layout.addRow("Name:", self.delete_name_input)
-
-        submit_button = QPushButton("Delete")
-        submit_button.clicked.connect(self.submit_delete_god_form)
-        form_layout.addWidget(submit_button)
-
-        self.form_window.setLayout(form_layout)
-        self.form_window.show()
-
-    def submit_delete_god_form(self):
-        name = self.delete_name_input.text().strip()
-        self.cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
         self.conn.commit()
-        if self.cursor.rowcount > 0:
-            self.output.append("God / Deity / Titan deleted successfully!")
-        else:
-            self.output.append("God / Deity / Titan not found!")
-        self.form_window.close()
-
-    def display_gods(self):
-        self.fetch_and_print_gods('SELECT name FROM gods WHERE flagged = FALSE ORDER BY name')
-
+        print("God / Deity / Titan updated successfully!")
     def show_edit_god_form(self):
         self.form_window = QWidget()
         self.form_window.setWindowTitle("Edit God / Deity / Titan")
@@ -179,7 +171,6 @@ class MainWindow(QMainWindow):
 
         self.form_window.setLayout(form_layout)
         self.form_window.show()
-
     def submit_edit_god_form(self):
         name = self.edit_name_input.text().strip()
         self.cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
@@ -189,7 +180,6 @@ class MainWindow(QMainWindow):
         else:
             self.output.append("God / Deity / Titan not found!")
         self.form_window.close()
-
     def edit_god_details(self, god):
         self.edit_form_window = QWidget()
         self.edit_form_window.setWindowTitle("Edit God / Deity / Titan Details")
@@ -222,7 +212,6 @@ class MainWindow(QMainWindow):
 
         self.edit_form_window.setLayout(form_layout)
         self.edit_form_window.show()
-
     def submit_edit_god_details(self, name):
         title = self.edit_title_input.text()
         god_of = self.edit_god_of_input.text()
@@ -247,7 +236,126 @@ class MainWindow(QMainWindow):
 
         self.output.append("God / Deity / Titan information updated successfully!")
         self.edit_form_window.close()
+    #---------- Search God Section ----------# (Done)
+    def search_god(self):
+        self.submit_search_god_form()
+    def show_search_god_form(self):
+        self.search_window = QWidget()
+        self.search_window.setWindowTitle("Search God / Deity / Titan")
 
+        form_layout = QFormLayout()
+
+        self.search_name_input = QLineEdit()
+        form_layout.addRow("Name:", self.search_name_input)
+
+        search_button = QPushButton("Search")
+        search_button.clicked.connect(self.submit_search_god_form)
+        form_layout.addWidget(search_button)
+
+        self.search_window.setLayout(form_layout)
+        self.search_window.show()
+    def submit_search_god_form(self):
+        name = self.search_name_input.text()
+        self.cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
+        god = self.cursor.fetchone()
+        if god:
+            # Fetch the corresponding names for Father, Mother, and Level
+            self.cursor.execute('SELECT name FROM parents WHERE id = ?', (god[7],))
+            father_name = self.cursor.fetchone()
+            father_name = father_name[0] if father_name else "Unknown"
+
+            self.cursor.execute('SELECT name FROM parents WHERE id = ?', (god[8],))
+            mother_name = self.cursor.fetchone()
+            mother_name = mother_name[0] if mother_name else "Unknown"
+
+            self.cursor.execute('SELECT name FROM levels WHERE id = ?', (god[9],))
+            level_name = self.cursor.fetchone()
+            level_name = level_name[0] if level_name else "Unknown"
+
+
+            # Ensure the description is treated as a string
+            description = str(god[6])
+            paragraphs = description.split('\n')
+            formatted_description = description.replace('. ', '.\t\n')
+
+            god_info = {
+                "Name": god[0],
+                "Title": god[1],
+                "God of": god[2],
+                "Symbol": god[3],
+                "Greek Name": god[4],
+                "Roman Name": god[5],
+                "Description": formatted_description,
+                "Father": father_name,
+                "Mother": mother_name,
+                "Level": level_name
+            }
+            self.show_god_info(god_info)
+        else:
+            self.output.append("God / Deity / Titan not found.")
+    #---------- Search God by Letter Section ----------#
+    def search_god_by_letter(self, letter):
+        self.cursor.execute('SELECT * FROM gods WHERE name LIKE ?', (letter + '%',))
+        gods = self.cursor.fetchall()
+        for god in gods:
+            print(god)
+    def submit_search_god_by_letter_form(self):
+        letter = self.search_letter_input.text().strip()
+        self.fetch_and_print_gods('SELECT name FROM gods WHERE TRIM(name) LIKE ? AND flagged = FALSE', ('%' + letter + '%',))
+        self.form_window.close()
+    def show_search_god_by_letter_form(self):
+        self.form_window = QWidget()
+        self.form_window.setWindowTitle("Search God / Deity / Titan by Letter")
+
+        form_layout = QFormLayout()
+
+        self.search_letter_input = QLineEdit()
+        form_layout.addRow("Letter or Word:", self.search_letter_input)
+
+        submit_button = QPushButton("Search")
+        submit_button.clicked.connect(self.submit_search_god_by_letter_form)
+        form_layout.addWidget(submit_button)
+
+        self.form_window.setLayout(form_layout)
+        self.form_window.show()
+    #---------- Delete God Section ----------# (Delete)
+    def delete_god(self, name):
+        self.cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
+        self.conn.commit()
+        print("God / Deity / Titan deleted successfully!")
+    def show_delete_god_form(self):
+        self.form_window = QWidget()
+        self.form_window.setWindowTitle("Delete God / Deity / Titan")
+
+        form_layout = QFormLayout()
+
+        self.delete_name_input = QLineEdit()
+        form_layout.addRow("Name:", self.delete_name_input)
+
+        submit_button = QPushButton("Delete")
+        submit_button.clicked.connect(self.submit_delete_god_form)
+        form_layout.addWidget(submit_button)
+
+        self.form_window.setLayout(form_layout)
+        self.form_window.show()
+    def submit_delete_god_form(self):
+        name = self.delete_name_input.text().strip()
+        self.cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
+        self.conn.commit()
+        if self.cursor.rowcount > 0:
+            self.output.append("God / Deity / Titan deleted successfully!")
+        else:
+            self.output.append("God / Deity / Titan not found!")
+        self.form_window.close()
+    #---------- Display Gods Section ----------#
+    def display_gods(self):
+        self.fetch_and_print_gods('SELECT name FROM gods WHERE flagged = FALSE ORDER BY name')
+    def display_gods(self):
+        self.cursor.execute('SELECT * FROM gods')
+        gods = self.cursor.fetchall()
+        for god in gods:
+            print(god)
+    #---------- Flag God Section ----------#
     def show_flag_god_form(self):
         self.form_window = QWidget()
         self.form_window.setWindowTitle("Flag God / Deity / Titan")
@@ -263,7 +371,6 @@ class MainWindow(QMainWindow):
 
         self.form_window.setLayout(form_layout)
         self.form_window.show()
-
     def submit_flag_god_form(self):
         name = self.flag_name_input.text().strip()
         self.cursor.execute('UPDATE gods SET flagged = TRUE WHERE name = ?', (name,))
@@ -273,7 +380,7 @@ class MainWindow(QMainWindow):
         else:
             self.output.append("God / Deity / Titan not found!")
         self.form_window.close()
-
+    #---------- Unflag God Section ----------#
     def unflag_god(self):
         self.cursor.execute('''
             SELECT name, title, god_of, symbol, greek_name, roman_name, description
@@ -310,7 +417,8 @@ class MainWindow(QMainWindow):
                 self.output.append("No action taken.")
         else:
             self.output.append("No flagged records found.")
-
+    #---------- Menu Section ----------#
+    #---------- SQLite / Tables Section ----------#
     def fetch_and_print_gods(self, query, params=()):
         self.cursor.execute(query, params)
         gods = self.cursor.fetchall()
@@ -465,130 +573,10 @@ class MainWindow(QMainWindow):
             self.conn.commit()
             return self.cursor.lastrowid
 
-    def add_god(self, name, title, god_of, symbol, greek_name, roman_name, description, father_name, mother_name, level_name):
-        father_id = self.get_or_create_parent(father_name)
-        mother_id = self.get_or_create_parent(mother_name)
-        level_id = self.get_or_create_level(level_name)
-
-        self.cursor.execute('''
-            INSERT INTO gods (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (name, title, god_of, symbol, greek_name, roman_name, description, father_id, mother_id, level_id))
-        self.conn.commit()
-        print("God / Deity / Titan added successfully!")
-
-    def show_search_god_form(self):
-        self.search_window = QWidget()
-        self.search_window.setWindowTitle("Search God / Deity / Titan")
-
-        form_layout = QFormLayout()
-
-        self.search_name_input = QLineEdit()
-        form_layout.addRow("Name:", self.search_name_input)
-
-        search_button = QPushButton("Search")
-        search_button.clicked.connect(self.submit_search_god_form)
-        form_layout.addWidget(search_button)
-
-        self.search_window.setLayout(form_layout)
-        self.search_window.show()
-
-    def submit_search_god_form(self):
-        name = self.search_name_input.text()
-        self.cursor.execute('SELECT * FROM gods WHERE name = ?', (name,))
-        god = self.cursor.fetchone()
-        if god:
-            # Fetch the corresponding names for Father, Mother, and Level
-            self.cursor.execute('SELECT name FROM parents WHERE id = ?', (god[8],))
-            father_name = self.cursor.fetchone()
-            father_name = father_name[0] if father_name else "Unknown"
-
-            self.cursor.execute('SELECT name FROM parents WHERE id = ?', (god[9],))
-            mother_name = self.cursor.fetchone()
-            mother_name = mother_name[0] if mother_name else "Unknown"
-
-            # No pulling id value equivalent to level_id
-            self.cursor.execute('SELECT name FROM levels WHERE id = ?', (god[10],))
-            level_name = self.cursor.fetchone()
-            level_name = level_name[0] if level_name else "Unknown"
-
-            # Ensure the description is treated as a string
-            description = str(god[6])
-            paragraphs = description.split('\n')
-            formatted_description = description.replace('. ', '.\t\n')
-
-            god_info = {
-                "Name": god[0],
-                "Title": god[1],
-                "God of": god[2],
-                "Symbol": god[3],
-                "Greek Name": god[4],
-                "Roman Name": god[5],
-                "Description": formatted_description,
-                "Father": father_name,
-                "Mother": mother_name,
-                "Level": level_name
-            }
-            self.show_god_info(god_info)
-        else:
-            self.output.append("God / Deity / Titan not found.")
-
-    def search_god(self):
-        self.submit_search_god_form()
-
     def show_god_info(self, god_info):
         self.god_info_window = GodInfoWindow(god_info)
         self.god_info_window.show()
 
-    def search_god_by_letter(self, letter):
-        self.cursor.execute('SELECT * FROM gods WHERE name LIKE ?', (letter + '%',))
-        gods = self.cursor.fetchall()
-        for god in gods:
-            print(god)
-
-    def delete_god(self, name):
-        self.cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
-        self.conn.commit()
-        print("God / Deity / Titan deleted successfully!")
-
-    def display_gods(self):
-        self.cursor.execute('SELECT * FROM gods')
-        gods = self.cursor.fetchall()
-        for god in gods:
-            print(god)
-
-    def edit_god(self, name, new_name=None, new_title=None, new_god_of=None, new_symbol=None, new_greek_name=None, new_roman_name=None, new_description=None, new_father_name=None, new_mother_name=None, new_level_name=None):
-        god = self.search_god(name)
-        if not god:
-            print("God / Deity / Titan not found.")
-            return
-
-        if new_name:
-            self.cursor.execute('UPDATE gods SET name = ? WHERE name = ?', (new_name, name))
-        if new_title:
-            self.cursor.execute('UPDATE gods SET title = ? WHERE name = ?', (new_title, name))
-        if new_god_of:
-            self.cursor.execute('UPDATE gods SET god_of = ? WHERE name = ?', (new_god_of, name))
-        if new_symbol:
-            self.cursor.execute('UPDATE gods SET symbol = ? WHERE name = ?', (new_symbol, name))
-        if new_greek_name:
-            self.cursor.execute('UPDATE gods SET greek_name = ? WHERE name = ?', (new_greek_name, name))
-        if new_roman_name:
-            self.cursor.execute('UPDATE gods SET roman_name = ? WHERE name = ?', (new_roman_name, name))
-        if new_description:
-            self.cursor.execute('UPDATE gods SET description = ? WHERE name = ?', (new_description, name))
-        if new_father_name:
-            father_id = self.get_or_create_parent(new_father_name)
-            self.cursor.execute('UPDATE gods SET father_id = ? WHERE name = ?', (father_id, name))
-        if new_mother_name:
-            mother_id = self.get_or_create_parent(new_mother_name)
-            self.cursor.execute('UPDATE gods SET mother_id = ? WHERE name = ?', (mother_id, name))
-        if new_level_name:
-            level_id = self.get_or_create_level(new_level_name)
-            self.cursor.execute('UPDATE gods SET level_id = ? WHERE name = ?', (level_id, name))
-
-        self.conn.commit()
-        print("God / Deity / Titan updated successfully!")
 
     # def menu(self):
     #     print("1. Add a God / Deity / Titan")
