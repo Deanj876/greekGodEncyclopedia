@@ -5,10 +5,6 @@ import textwrap
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QLabel, QTextEdit, QFormLayout, QMessageBox, QDialog, QScrollArea
 import sys
-# from functions import (
-#     fetch_and_print_gods, migrate_data, get_or_create_parent, get_or_create_level,
-#     add_god, search_god, search_god_by_letter, delete_god, display_gods, edit_god, menu
-# )
 
 class GodInfoWindow(QDialog):
     def __init__(self, god_info):
@@ -123,13 +119,13 @@ class MainWindow(QMainWindow):
         # self.add_button("Migrate Data", self.migrate_data, layout)
         # self.add_button("Get or Create Parent", self.get_or_create_parent, layout)
         # self.add_button("Get or Create Level", self.get_or_create_level, layout)
-        self.add_button("Add God", self.show_add_god_form, layout)
+        self.add_button("Display Gods", self.display_gods, layout)
         self.add_button("Search God", self.show_search_god_form, layout)
         self.add_button("Search God by Letter", self.show_search_god_by_letter_form, layout)
-        self.add_button("Delete God", self.show_delete_god_form, layout)
-        self.add_button("Display Gods", self.display_gods, layout)
+        self.add_button("Add God", self.show_add_god_form, layout)
         self.add_button("Edit God", self.show_edit_god_form, layout)
-        self.add_button("Show Menu", self.show_menu, layout)
+        self.add_button("Delete God", self.show_delete_god_form, layout)
+        # self.add_button("Show Menu", self.show_menu, layout)
 
         container = QWidget()
         container.setLayout(layout)
@@ -211,7 +207,7 @@ class MainWindow(QMainWindow):
 
         self.output.append("God / Deity / Titan added successfully!")
         self.form_window.close()
-    #---------- Edit God Section ----------#
+    #---------- Edit God Section ----------# (Done)
     def show_edit_god_window(self, god):
         def edit_callback(property_name, god):
             current_value = self.get_current_value(property_name, god)
@@ -220,26 +216,19 @@ class MainWindow(QMainWindow):
 
         self.edit_god_window = GodsListWindowEdit(god, edit_callback)
         self.edit_god_window.show()
-    def show_edit_god_window(self, god):
-        def edit_callback(property_name, god):
-            self.edit_property_window = EditPropertyWindow(property_name, god, self.submit_edit_god_property)
-            self.edit_property_window.show()
-
-        self.edit_god_window = GodsListWindowEdit(god, edit_callback)
-        self.edit_god_window.show()
     def submit_edit_god_property(self, property_name, new_value):
-        god_id = self.edit_god_window.god[0]
+        god_name = self.edit_god_window.god[0]  # Assuming the first element is the name
         if property_name == "Father Name":
             new_value = self.get_or_create_parent(new_value)
-            self.cursor.execute('UPDATE gods SET father_id = ? WHERE id = ?', (new_value, god_id))
+            self.cursor.execute('UPDATE gods SET father_id = ? WHERE name = ?', (new_value, god_name))
         elif property_name == "Mother Name":
             new_value = self.get_or_create_parent(new_value)
-            self.cursor.execute('UPDATE gods SET mother_id = ? WHERE id = ?', (new_value, god_id))
+            self.cursor.execute('UPDATE gods SET mother_id = ? WHERE name = ?', (new_value, god_name))
         elif property_name == "Level Name":
             new_value = self.get_or_create_level(new_value)
-            self.cursor.execute('UPDATE gods SET level_id = ? WHERE id = ?', (new_value, god_id))
+            self.cursor.execute('UPDATE gods SET level_id = ? WHERE name = ?', (new_value, god_name))
         else:
-            self.cursor.execute(f'UPDATE gods SET {property_name.lower().replace(" ", "_")} = ? WHERE id = ?', (new_value, god_id))
+            self.cursor.execute(f'UPDATE gods SET {property_name.lower().replace(" ", "_")} = ? WHERE name = ?', (new_value, god_name))
         self.conn.commit()
         self.output.append(f"{property_name} updated successfully!")
         self.edit_property_window.close()
@@ -691,7 +680,7 @@ class MainWindow(QMainWindow):
         level = self.cursor.fetchone()
         return level[0] if level else "Unknown"
     
-    # def menu(self):
+    # def show_menu(self):
     #     print("1. Add a God / Deity / Titan")
     #     print("2. Search for a God / Deity / Titan's information")
     #     print("3. Search for a God / Deity / Titan by letter or key word")
@@ -703,19 +692,6 @@ class MainWindow(QMainWindow):
     #     print("9. Exit")
     #     choice = input("Enter your choice: ")
     #     return choice
-    
-    def show_menu(self):
-        print("1. Add a God / Deity / Titan")
-        print("2. Search for a God / Deity / Titan's information")
-        print("3. Search for a God / Deity / Titan by letter or key word")
-        print("4. Delete a God / Deity / Titan")
-        print("5. Display all Gods / Deities / Titans")
-        print("6. Edit a God / Deity / Titan")
-        print("7. Flag a God / Deity / Titan")
-        print("8. Unflag a God / Deity / Titan")
-        print("9. Exit")
-        choice = input("Enter your choice: ")
-        return choice
 
 def main():
     app = QApplication(sys.argv)
@@ -725,5 +701,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-EditPropertyWindow

@@ -1,6 +1,10 @@
 # from functions import clear_screen, greet, create_connection, get_or_create_parent, get_or_create_level, menu
 # from functions import add_god, search_god, search_god_by_letter, delete_god, display_gods, edit_god, flag_god, unflag_god
 from UI import main
+# from functions import (
+#     fetch_and_print_gods, migrate_data, get_or_create_parent, get_or_create_level,
+#     add_god, search_god, search_god_by_letter, delete_god, display_gods, edit_god, menu
+# )
 
 # Main program
 
