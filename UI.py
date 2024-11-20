@@ -6,7 +6,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QLabel, QTextEdit, QFormLayout, QMessageBox, QDialog, QScrollArea
 import sys
 
-class GodInfoWindow(QDialog):
+class GodInfoScreen(QWidget):
     def __init__(self, god_info):
         super().__init__()
         self.setWindowTitle("God Information")
@@ -16,22 +16,11 @@ class GodInfoWindow(QDialog):
             layout.addWidget(QLabel(f"{key}: {value}"))
 
         self.setLayout(layout)
-class GodsListWindow(QDialog):
-    def __init__(self, gods):
+class GodsListScreen(QWidget):
+    def __init__(self, gods, initial):
         super().__init__()
-        self.setWindowTitle("Gods List")
-        layout = QVBoxLayout()
-
-        for god in gods:
-            god_info = f"Name: {god[0]}"
-            layout.addWidget(QLabel(god_info))
-
-        self.setLayout(layout)
-class GodsListWindowDisplay(QDialog):
-    def __init__(self, gods, letter, next_callback, back_callback):
-        super().__init__()
-        self.setWindowTitle(f"Gods List - {letter}")
-        self.resize(800, 800)  # Set the window size to 800x600
+        self.setWindowTitle(f"Gods List - {initial}")
+        self.resize(800, 600)  # Set the window size
 
         layout = QVBoxLayout()
 
@@ -40,23 +29,56 @@ class GodsListWindowDisplay(QDialog):
         scroll_layout = QVBoxLayout()
 
         for god in gods:
-            god_info = f"Name: {god[0]}"
-            scroll_layout.addWidget(QLabel(god_info))
+            if god[0].startswith(initial):
+                god_info = f"Name: {god[0]}"
+                scroll_layout.addWidget(QLabel(god_info))
 
         scroll_widget.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
+
         layout.addWidget(scroll_area)
-
-        next_button = QPushButton("Next")
-        next_button.clicked.connect(next_callback)
-        layout.addWidget(next_button)
-
-        back_button = QPushButton("Back")
-        back_button.clicked.connect(back_callback)
-        layout.addWidget(back_button)
-
         self.setLayout(layout)
+class GodsListScreenDisplay(QWidget):
+    def __init__(self, gods, letter, next_callback, back_callback):
+        super().__init__()
+        self.setWindowTitle(f"Gods List - {letter}")
+        self.resize(800, 800)  # Set the window size to 800x600
+
+        self.layout = QVBoxLayout()
+
+        self.scroll_area = QScrollArea()
+        self.scroll_widget = QWidget()
+        self.scroll_layout = QVBoxLayout()
+
+        self.update_gods_list(gods)
+
+        self.scroll_widget.setLayout(self.scroll_layout)
+        self.scroll_area.setWidget(self.scroll_widget)
+        self.scroll_area.setWidgetResizable(True)
+        self.layout.addWidget(self.scroll_area)
+
+        self.next_button = QPushButton("Next")
+        self.next_button.clicked.connect(next_callback)
+        self.layout.addWidget(self.next_button)
+
+        self.back_button = QPushButton("Back")
+        self.back_button.clicked.connect(back_callback)
+        self.layout.addWidget(self.back_button)
+
+        self.setLayout(self.layout)
+
+    def update_gods_list(self, gods):
+        # Clear the current layout
+        for i in reversed(range(self.scroll_layout.count())):
+            widget = self.scroll_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        # Add new gods to the layout
+        for god in gods:
+            god_info = f"Name: {god[0]}"
+            self.scroll_layout.addWidget(QLabel(god_info))
 class EditPropertyWindow(QDialog):
     def __init__(self, property_name, current_value, submit_callback):
         super().__init__()
@@ -75,7 +97,7 @@ class EditPropertyWindow(QDialog):
         layout.addWidget(submit_button)
 
         self.setLayout(layout)
-class GodsListWindowEdit(QDialog):
+class GodsListScreenEdit(QDialog):
     def __init__(self, god, edit_callback):
         super().__init__()
         self.setWindowTitle("Edit God / Deity / Titan")
@@ -214,7 +236,7 @@ class MainWindow(QMainWindow):
             self.edit_property_window = EditPropertyWindow(property_name, current_value, self.submit_edit_god_property)
             self.edit_property_window.show()
 
-        self.edit_god_window = GodsListWindowEdit(god, edit_callback)
+        self.edit_god_window = GodsListScreenEdit(god, edit_callback)
         self.edit_god_window.show()
     def submit_edit_god_property(self, property_name, new_value):
         god_name = self.edit_god_window.god[0]  # Assuming the first element is the name
@@ -369,15 +391,15 @@ class MainWindow(QMainWindow):
         self.cursor.execute('SELECT * FROM gods WHERE name LIKE ?', ('%' + letter + '%',))
         gods = self.cursor.fetchall()
         if gods:
-            self.show_gods_list(gods)
+            self.show_gods_list(gods, initial=letter)
         else:
             self.output.append("No gods found matching the letter or keyword.")
         self.form_window.close()
     def search_god_by_letter(self, letter):
         self.submit_search_god_by_letter_form()
-    def show_gods_list(self, gods):
-        self.gods_list_window = GodsListWindow(gods)
-        self.gods_list_window.show()
+    def show_gods_list(self, gods, initial):
+        self.gods_list_screen = GodsListScreen(gods, initial)
+        self.gods_list_screen.show()
     #---------- Delete God Section ----------# (Done)
     def delete_god(self, name):
         self.cursor.execute('DELETE FROM gods WHERE name = ?', (name,))
@@ -423,17 +445,17 @@ class MainWindow(QMainWindow):
                 self.display_gods_by_letter()
     def show_gods_list_with_pagination(self, gods, letter):
         def next_callback():
-            self.gods_list_window.close()
+            self.gods_list_screen.close()
             self.current_letter = chr(ord(letter) + 1)
             if self.current_letter <= 'Z':
                 self.display_gods_by_letter()
         def back_callback():
-            self.gods_list_window.close()
+            self.gods_list_screen.close()
             self.current_letter = chr(ord(letter) + -1)
             if self.current_letter <= 'Z':
                 self.display_gods_by_letter()
-        self.gods_list_window = GodsListWindowDisplay(gods, letter, next_callback, back_callback)
-        self.gods_list_window.show()
+        self.gods_list_screen = GodsListScreenDisplay(gods, letter, next_callback, back_callback)
+        self.gods_list_screen.show()
     #---------- Flag God Section ----------#
     def show_flag_god_form(self):
         self.form_window = QWidget()
@@ -653,7 +675,7 @@ class MainWindow(QMainWindow):
             return self.cursor.lastrowid
 
     def show_god_info(self, god_info):
-        self.god_info_window = GodInfoWindow(god_info)
+        self.god_info_window = GodInfoScreen(god_info)
         self.god_info_window.show()
 
     def get_current_value(self, property_name, god):
