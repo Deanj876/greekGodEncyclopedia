@@ -1,4 +1,9 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QLabel, QPushButton, QScrollArea, QLineEdit, QDialog
+import sys
+import sqlite3
+import textwrap
+import os
+import openai
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QLabel, QTextEdit, QFormLayout, QMessageBox, QDialog, QScrollArea
 
 class GodInfoScreen(QWidget):
     def __init__(self, god_info):
@@ -12,15 +17,27 @@ class GodInfoScreen(QWidget):
         self.setLayout(layout)
 
 class GodsListScreen(QWidget):
-    def __init__(self, gods):
+    def __init__(self, gods, initial):
         super().__init__()
-        self.setWindowTitle("Gods List")
+        self.setWindowTitle(f"Gods List - {initial}")
+        self.resize(800, 600)  # Set the window size
+
         layout = QVBoxLayout()
 
-        for god in gods:
-            god_info = f"Name: {god[0]}"
-            layout.addWidget(QLabel(god_info))
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout()
 
+        for god in gods:
+            if god[0].startswith(initial):
+                god_info = f"Name: {god[0]}"
+                scroll_layout.addWidget(QLabel(god_info))
+
+        scroll_widget.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_widget)
+        scroll_area.setWidgetResizable(True)
+
+        layout.addWidget(scroll_area)
         self.setLayout(layout)
 
 class GodsListScreenDisplay(QWidget):
@@ -111,81 +128,85 @@ class GodsListScreenEdit(QDialog):
 
         self.setLayout(layout)
 
-class DisplayScreens(QWidget):
-    def __init__(self, god_info, gods, next_callback, back_callback):
-        super().__init__()
-        self.layout = QVBoxLayout()
-
-        self.god_info_screen = GodInfoScreen(god_info)
-        self.gods_list_screen = GodsListScreen(gods)
-        self.gods_list_screen_display = GodsListScreenDisplay(gods, "A", next_callback, back_callback)
-
-        self.layout.addWidget(self.god_info_screen)
-        self.layout.addWidget(self.gods_list_screen)
-        self.layout.addWidget(self.gods_list_screen_display)
-
-        self.setLayout(self.layout)
-
-class EditDialogs(QWidget):
-    def __init__(self, god, edit_callback, submit_callback):
-        super().__init__()
-        self.layout = QVBoxLayout()
-
-        self.edit_property_window = EditPropertyWindow("Title", "Current Value", submit_callback)
-        self.gods_list_screen_edit = GodsListScreenEdit(god, edit_callback)
-
-        self.layout.addWidget(self.edit_property_window)
-        self.layout.addWidget(self.gods_list_screen_edit)
-
-        self.setLayout(self.layout)
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Main Window")
-        self.resize(800, 600)
 
-        self.central_widget = QStackedWidget()
-        self.setCentralWidget(self.central_widget)
+        self.setWindowTitle("Gods Database UI")
 
-        # Example data
-        god_info = {"Name": "Zeus", "Title": "King of the Gods"}
-        gods = [("Zeus",), ("Hera",), ("Poseidon",)]
+        layout = QVBoxLayout()
 
-        # Create instances of groups
-        self.display_screens = DisplayScreens(god_info, gods, self.next_callback, self.back_callback)
-        self.edit_dialogs = EditDialogs(god_info, self.edit_callback, self.submit_callback)
+        self.output = QTextEdit()
+        self.output.setReadOnly(True)
+        layout.addWidget(self.output)
 
-        # Add groups to the stacked widget
-        self.central_widget.addWidget(self.display_screens)
-        self.central_widget.addWidget(self.edit_dialogs)
+        self.add_button("Display Gods", self.display_gods, layout)
+        self.add_button("Search God", self.show_search_god_form, layout)
+        self.add_button("Search God by Letter", self.show_search_god_by_letter_form, layout)
+        self.add_button("Add God", self.show_add_god_form, layout)
+        self.add_button("Edit God", self.show_edit_god_form, layout)
+        self.add_button("Delete God", self.show_delete_god_form, layout)
 
-        # Set the initial screen
-        self.central_widget.setCurrentWidget(self.display_screens)
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
 
-    def next_callback(self):
-        # Fetch new gods list for the next page
-        new_gods = [("Apollo",), ("Artemis",)]
-        self.display_screens.gods_list_screen_display.update_gods_list(new_gods)
-        self.central_widget.setCurrentWidget(self.display_screens)
+        self.conn, self.cursor = self.create_connection()
 
-    def back_callback(self):
-        # Fetch new gods list for the previous page
-        new_gods = [("Zeus",), ("Hera",), ("Poseidon",)]
-        self.display_screens.gods_list_screen_display.update_gods_list(new_gods)
-        self.central_widget.setCurrentWidget(self.display_screens)
+        # Set your OpenAI API key
+        openai.api_key = 'your-api-key-here'
 
-    def edit_callback(self, property_name, god):
-        # Show edit dialog for the selected property
-        self.central_widget.setCurrentWidget(self.edit_dialogs)
+    def add_button(self, label, function, layout):
+        button = QPushButton(label)
+        button.clicked.connect(function)
+        layout.addWidget(button)
 
-    def submit_callback(self, property_name, new_value):
-        # Handle the submission of the edited property
-        print(f"Updated {property_name} to {new_value}")
-        self.central_widget.setCurrentWidget(self.display_screens)
+    def fetch_greek_myths(self, god_name):
+        prompt = f"Tell me about Greek myths where {god_name} is mentioned."
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=150
+        )
+        return response.choices[0].text.strip()
+
+    def show_god_info(self, god_info):
+        self.god_info_screen = GodInfoScreen(god_info)
+        self.god_info_screen.show()
+
+        # Fetch additional information about the god
+        myths_info = self.fetch_greek_myths(god_info["Name"])
+        self.output.append(f"Greek Myths about {god_info['Name']}:\n{myths_info}")
+
+    def display_gods(self):
+        # Placeholder method for displaying gods
+        self.output.append("Display Gods button clicked")
+
+    def show_search_god_form(self):
+        # Placeholder method for showing search god form
+        self.output.append("Search God button clicked")
+
+    def show_search_god_by_letter_form(self):
+        # Placeholder method for showing search god by letter form
+        self.output.append("Search God by Letter button clicked")
+
+    def show_add_god_form(self):
+        # Placeholder method for showing add god form
+        self.output.append("Add God button clicked")
+
+    def show_edit_god_form(self):
+        # Placeholder method for showing edit god form
+        self.output.append("Edit God button clicked")
+
+    def show_delete_god_form(self):
+        # Placeholder method for showing delete god form
+        self.output.append("Delete God button clicked")
+
+    def create_connection(self):
+        # Placeholder method for creating a database connection
+        return None, None
 
 if __name__ == "__main__":
-    import sys
     app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
