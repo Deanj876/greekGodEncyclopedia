@@ -1,47 +1,43 @@
-# ui.py
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from functions_Test import clear_screen, greet, create_connection, menu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QWidget
+from PyQt5.QtGui import QPixmap
+
+class GodInfoScreen(QWidget):
+    def __init__(self, god_info, image_path):
+        super().__init__()
+        self.setWindowTitle("God Information")
+        layout = QVBoxLayout()
+
+        # Add text information
+        for key, value in god_info.items():
+            layout.addWidget(QLabel(f"{key}: {value}"))
+
+        # Add image
+        image_label = QLabel()
+        pixmap = QPixmap(image_path)
+
+        # Scale the image to fit within a specific size (e.g., 400x400)
+        scaled_pixmap = pixmap.scaled(400, 400, aspectRatioMode=True, transformMode=True)
+        image_label.setPixmap(scaled_pixmap)
+        layout.addWidget(image_label)
+
+        self.setLayout(layout)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Main Window")
+        self.resize(800, 600)
 
-        self.setWindowTitle("Simple PyQt UI")
+        # Example data
+        god_info = {"Name": "Zeus", "Title": "King of the Gods"}
+        image_path = r"C:\Users\tenor\OneDrive\Documents\GitHub\pf24-greek-god-encyclopedia\Test_UI\Zeus.jpg"  # Replace with the path to your image
 
-        layout = QVBoxLayout()
-
-        self.greet_button = QPushButton("Greet")
-        self.greet_button.clicked.connect(self.greet_user)
-        layout.addWidget(self.greet_button)
-
-        self.clear_button = QPushButton("Clear Screen")
-        self.clear_button.clicked.connect(self.clear_screen)
-        layout.addWidget(self.clear_button)
-
-        self.menu_button = QPushButton("Show Menu")
-        self.menu_button.clicked.connect(self.show_menu)
-        layout.addWidget(self.menu_button)
-
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
-
-    def greet_user(self):
-        greet("John Doe")
-
-    def clear_screen(self):
-        clear_screen()
-
-    def show_menu(self):
-        choice = menu()
-        print(f"Menu choice: {choice}")
-
-def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+        self.god_info_screen = GodInfoScreen(god_info, image_path)
+        self.setCentralWidget(self.god_info_screen)
 
 if __name__ == "__main__":
-    main()
+    import sys
+    app = QApplication(sys.argv)
+    main_window = MainWindow()
+    main_window.show()
+    sys.exit(app.exec_())
