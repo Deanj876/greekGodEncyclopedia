@@ -5,7 +5,7 @@ import textwrap
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QLabel, QTextEdit, QFormLayout, QMessageBox, QDialog, QScrollArea
 import sys
-import openai
+# import openai
 
 class GodInfoScreen(QWidget):
     def __init__(self, god_info):
