@@ -4,17 +4,87 @@ import sqlite3
 import textwrap
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QLabel, QTextEdit, QFormLayout, QMessageBox, QDialog, QScrollArea
+from PyQt5.QtGui import QPixmap
 import sys
 # import openai
+
+# class GodInfoScreen(QWidget):
+#     def __init__(self, god_info):
+#         super().__init__()
+#         self.setWindowTitle("God Information")
+#         # Set the background color to white
+#         self.setStyleSheet("background-color: white;")
+#         layout = QVBoxLayout()
+#         for key, value in god_info.items():
+#             layout.addWidget(QLabel(f"{key}: {value}"))
+#         self.setLayout(layout)
 
 class GodInfoScreen(QWidget):
     def __init__(self, god_info):
         super().__init__()
         self.setWindowTitle("God Information")
+        
         layout = QVBoxLayout()
         for key, value in god_info.items():
             layout.addWidget(QLabel(f"{key}: {value}"))
+        
+        # Add the "Image" button
+        image_button = QPushButton("Image")
+        image_button.clicked.connect(lambda: self.open_image_screen(god_info.get("name", "")))
+        layout.addWidget(image_button)
+        
         self.setLayout(layout)
+
+    def open_image_screen(self, god_name):
+        # Open the image display screen
+        self.image_screen = ImageDisplayScreen(god_name)
+        self.image_screen.show()
+class GodsListScreenDisplay(QWidget):
+    def __init__(self):
+        super().__init__()
+        # Example button to open the image screen
+        button = QPushButton("Show Zeus Image")
+        button.clicked.connect(lambda: self.open_image_screen("Zeus"))
+        layout = QVBoxLayout()
+        layout.addWidget(button)
+        self.setLayout(layout)
+
+    def open_image_screen(self, god_name):
+        self.image_screen = ImageDisplayScreen(god_name, self.cursor)
+        self.image_screen.show()
+# TEST___________________________________________________________
+class ImageDisplayScreen(QWidget):
+    def __init__(self, god_name, cursor):
+        super().__init__()
+        self.setWindowTitle(f"{god_name} Image")
+        layout = QVBoxLayout()
+        
+        # Debug: Check the value of god_name
+        print(f"God name received: {god_name}")
+        
+        # Handle empty or invalid god_name
+        if not god_name:
+            god_name = "Unknown"
+            print("Warning: god_name is empty. Using default value.")
+        
+        # Specify the absolute folder path where images are stored
+        image_folder = r"C:\Users\djohnson876\Documents\GitHub\pf24-greek-god-encyclopedia\images"
+        image_path = os.path.join(image_folder, f"{god_name}.png")
+        
+        # Debug: Print the constructed path
+        print(f"Looking for image at: {image_path}")
+        
+        if os.path.exists(image_path):
+            pixmap = QPixmap(image_path)
+            image_label = QLabel()
+            image_label.setPixmap(pixmap)
+            layout.addWidget(image_label)
+        else:
+            layout.addWidget(QLabel("Image not found."))
+        
+        self.setLayout(layout)
+
+
 class GodsListScreen(QWidget):
     def __init__(self, gods, initial):
         super().__init__()
