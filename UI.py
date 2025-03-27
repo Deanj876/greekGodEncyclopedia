@@ -37,7 +37,7 @@ class GodInfoScreen(QWidget):
 
     def open_image_screen(self, god_name):
         # Open the image display screen
-        self.image_screen = ImageDisplayScreen(god_name)
+        self.image_screen = ImageDisplayScreen(god_name, self.cursor)
         self.image_screen.show()
 class GodsListScreenDisplay(QWidget):
     def __init__(self):
